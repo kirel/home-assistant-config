@@ -6,6 +6,12 @@
 !.gitignore
 !*.md
 
+!blueprints
+!custom_components
+!python_scripts
+!themes
+!www
+
 # Ignore folders.
 .storage
 .cloud
