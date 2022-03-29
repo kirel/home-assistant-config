@@ -1,0 +1,704 @@
+- id: Rolladen wochentags bei Sonnenaufgang hoch
+  alias: Rolladen wochentags bei Sonnenaufgang hoch
+  description: ''
+  trigger:
+  - platform: time
+    at: '7:00'
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  action:
+  - device_id: 86fcff9ca4efa7527e7df555b4df40f8
+    domain: cover
+    entity_id: cover.shelly_bad
+    type: set_position
+    position: 100
+  mode: single
+- id: Rolladen am Wochenende morgens hoch
+  alias: Rolladen am Wochenende morgens hoch
+  description: ''
+  trigger:
+  - platform: time
+    at: 09:00:00
+  condition:
+  - condition: time
+    weekday:
+    - sat
+    - sun
+  action:
+  - device_id: 86fcff9ca4efa7527e7df555b4df40f8
+    domain: cover
+    entity_id: cover.shelly_bad
+    type: set_position
+    position: 100
+  mode: single
+- id: Rolladen bei Sonnenuntergang runter
+  alias: Rolladen bei Sonnenuntergang runter
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+  action:
+  - device_id: 86fcff9ca4efa7527e7df555b4df40f8
+    domain: cover
+    entity_id: cover.shelly_bad
+    type: set_position
+    position: 0
+  mode: single
+- id: '1610697818461'
+  alias: Luftfeuchtigkeit
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.shelly_ht_humidity
+    above: '60'
+  - platform: numeric_state
+    entity_id: sensor.netatmo_wohnung_weather_station_humidity
+    above: '60'
+  - platform: numeric_state
+    entity_id: sensor.netatmo_wohnung_weather_station_schlafzimmer_humidity
+    above: '60'
+  condition: []
+  action:
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      message: Die Luftfeuchtigkeit ist über 60%. Lüften wäre angebracht.
+      data:
+        url: /lovelace-dash/klima
+  mode: single
+- id: '1625467803796'
+  alias: Sonnenaufgang
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+  condition: []
+  action:
+  - device_id: 98c5db78406a0c80d54be114f1926a94
+    domain: cover
+    entity_id: cover.wohnzimmer_rollo
+    type: set_position
+    position: 100
+  - device_id: 86fcff9ca4efa7527e7df555b4df40f8
+    domain: cover
+    entity_id: cover.shelly_bad
+    type: set_position
+    position: 100
+  - device_id: b1160333c0563a465802613977d873a5
+    domain: cover
+    entity_id: cover.kuche_rollo_links
+    type: set_position
+    position: 100
+  - device_id: c373d68cdf1b59f6d679a8006a8f1ee8
+    domain: cover
+    entity_id: cover.kuche_rollo_rechts
+    type: set_position
+    position: 100
+  - device_id: 16cd2d1b13ad782383b99b622c485aac
+    domain: cover
+    entity_id: cover.wohnzimmer_rollo_balkon_links
+    type: set_position
+    position: 100
+  - device_id: ab8caa70466a3518904275bfeaa44606
+    domain: cover
+    entity_id: cover.wohnzimmer_rollo_balkon_rechts
+    type: set_position
+    position: 100
+  - device_id: 47f565dff4d81fb6a7a092460f685ce1
+    domain: cover
+    entity_id: cover.schlafzimmer_rollo_links
+    type: set_position
+    position: 100
+  - device_id: 12eb92e3c31383da36745eebc66f6b57
+    domain: cover
+    entity_id: cover.schlafzimmer_rollo_rechts
+    type: set_position
+    position: 100
+  mode: single
+- id: '1625468117983'
+  alias: Sonnenuntergang
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+  condition: []
+  action:
+  - device_id: 98c5db78406a0c80d54be114f1926a94
+    domain: cover
+    entity_id: cover.wohnzimmer_rollo
+    type: set_position
+    position: 0
+  - device_id: 86fcff9ca4efa7527e7df555b4df40f8
+    domain: cover
+    entity_id: cover.shelly_bad
+    type: set_position
+    position: 0
+  - device_id: b1160333c0563a465802613977d873a5
+    domain: cover
+    entity_id: cover.kuche_rollo_links
+    type: set_position
+    position: 0
+  - device_id: c373d68cdf1b59f6d679a8006a8f1ee8
+    domain: cover
+    entity_id: cover.kuche_rollo_rechts
+    type: set_position
+    position: 0
+  - device_id: 16cd2d1b13ad782383b99b622c485aac
+    domain: cover
+    entity_id: cover.wohnzimmer_rollo_balkon_links
+    type: set_position
+    position: 0
+  - device_id: ab8caa70466a3518904275bfeaa44606
+    domain: cover
+    entity_id: cover.wohnzimmer_rollo_balkon_rechts
+    type: set_position
+    position: 0
+  - device_id: 47f565dff4d81fb6a7a092460f685ce1
+    domain: cover
+    entity_id: cover.schlafzimmer_rollo_links
+    type: set_position
+    position: 0
+  - device_id: 12eb92e3c31383da36745eebc66f6b57
+    domain: cover
+    entity_id: cover.schlafzimmer_rollo_rechts
+    type: set_position
+    position: 0
+  mode: single
+- id: wake_up_raw_s1
+  alias: Wake up RAW S1
+  trigger:
+  - platform: event
+    event_type: ifttt_webhook_received
+    event_data:
+      action: wake_up_raw_s1
+  condition: []
+  action:
+  - service: switch.turn_on
+    target:
+      entity_id: switch.raw_s1
+  mode: single
+- id: hibernate_raw_s1
+  alias: Hibernate RAW S1
+  trigger:
+  - platform: event
+    event_type: ifttt_webhook_received
+    event_data:
+      action: hibernate_raw_s1
+  condition: []
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id: switch.raw_s1
+  mode: single
+- id: '1637325203606'
+  alias: Kräuterlicht morgens an (Wochentag)
+  description: ''
+  trigger:
+  - platform: time
+    at: 09:00
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  action:
+  - type: turn_on
+    device_id: 854ad8f5550d1f2c6ec354bd9fbf879d
+    entity_id: light.light_3
+    domain: light
+  mode: single
+- id: '1637325456949'
+  alias: Kräuterlicht abends aus
+  description: ''
+  trigger:
+  - platform: time
+    at: '20:00'
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 854ad8f5550d1f2c6ec354bd9fbf879d
+    entity_id: light.light_3
+    domain: light
+  mode: single
+- id: '1643434481496'
+  alias: Licher aus wenn nicht zuhause
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: group.everyone
+    to: not_home
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition: []
+  action:
+  - service: script.alle_lichter_aus
+    data: {}
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      message: Alle Lichter ausgeschaltet.
+  mode: single
+- id: '1643638551817'
+  alias: Kräuterlicht morgens an (Wochenende)
+  description: ''
+  trigger:
+  - platform: time
+    at: '10:00'
+  condition:
+  - condition: time
+    weekday:
+    - sat
+    - sun
+  action:
+  - type: turn_on
+    device_id: 854ad8f5550d1f2c6ec354bd9fbf879d
+    entity_id: light.light_3
+    domain: light
+  mode: single
+- id: '1643811163188'
+  alias: Klimaalarm Büro
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.netatmo_wohnung_weather_station_co2
+    above: '1800'
+  condition:
+  - condition: time
+    before: '20:00'
+  action:
+  - type: turn_on
+    device_id: 356ebc7983e637c821be0a87dc402fe4
+    entity_id: light.hue_filament_bulb_1
+    domain: light
+    brightness_pct: 1
+  - service: script.klimacheck_buro
+  mode: single
+- id: '1643811985877'
+  alias: Klimaalarm Büro vorbei
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.netatmo_wohnung_weather_station_co2
+    below: '1800'
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 356ebc7983e637c821be0a87dc402fe4
+    entity_id: light.hue_filament_bulb_1
+    domain: light
+  mode: single
+- id: '1643842659601'
+  alias: Klimaalarm Büro schlafen
+  description: ''
+  trigger:
+  - platform: time
+    at: '20:00'
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 356ebc7983e637c821be0a87dc402fe4
+    entity_id: light.hue_filament_bulb_1
+    domain: light
+  mode: single
+- id: '1644165727122'
+  alias: Waschmaschine fertig
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.waschmaschine_lauft
+    from: 'on'
+    to: 'off'
+  condition: []
+  action:
+  - service: notify.notify
+    data:
+      message: Waschmaschine fertig.
+  mode: single
+- id: '1644472487354'
+  alias: Aqara Cube
+  description: ''
+  use_blueprint:
+    path: brent/zha-aqara-magic-cube-57-actions.yaml
+    input:
+      remote: 695ce80db488d33adc4b4732ee02d360
+      cube_shake:
+      - type: toggle
+        device_id: 356ebc7983e637c821be0a87dc402fe4
+        entity_id: light.hue_filament_bulb_1
+        domain: light
+      cube_flip_1:
+      - service: script.arbeiten
+        data: {}
+      flip_any: true
+      cube_flip_4:
+      - service: script.feierabend
+        data: {}
+      rotate_left: []
+      rotate_right: []
+      one_to_one: []
+- id: '1644477747022'
+  alias: Badtür auf
+  description: ''
+  trigger:
+  - type: opened
+    platform: device
+    device_id: 9a0a2e676c9e1f01459e7c5d0e14eec8
+    entity_id: binary_sensor.lumi_lumi_sensor_magnet_aq2_65db5b07_on_off
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  condition: []
+  action:
+  - service: persistent_notification.create
+    data:
+      notification_id: bathroom_door
+      message: Badtür ist noch offen.
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      message: Badtür ist noch offen.
+  - service: tts.google_translate_say
+    data:
+      entity_id: media_player.badezimmer
+      message: Die Tür im Bad ist seit 15 Minuten offen.
+      language: de
+  mode: single
+- id: '1644477787474'
+  alias: Badtür zu
+  description: ''
+  trigger:
+  - type: not_opened
+    platform: device
+    device_id: 9a0a2e676c9e1f01459e7c5d0e14eec8
+    entity_id: binary_sensor.lumi_lumi_sensor_magnet_aq2_65db5b07_on_off
+    domain: binary_sensor
+  condition: []
+  action:
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: bathroom_door
+  mode: single
+- id: '1644593133663'
+  alias: Küchenschublade macht das Licht an
+  description: ''
+  trigger:
+  - type: vibration
+    platform: device
+    device_id: 98a57b5ef9dfc3c013a26af74c3a90cc
+    entity_id: binary_sensor.lumi_lumi_vibration_aq1_ias_zone
+    domain: binary_sensor
+  condition: []
+  action:
+  - type: turn_on
+    device_id: bdff3fc346f291b6f341547859f8cce1
+    entity_id: light.on_off_plug_1_2
+    domain: light
+  mode: single
+- id: shellies_announce
+  alias: Shellies Announce
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: time_pattern
+    hours: /1
+  action:
+    service: mqtt.publish
+    data:
+      topic: shellies/command
+      payload: announce
+- id: shellies_discovery
+  alias: Shellies Discovery
+  mode: queued
+  max: 999
+  trigger:
+    platform: mqtt
+    topic: shellies/announce
+  action:
+    service: python_script.shellies_discovery
+    data:
+      id: '{{ trigger.payload_json.id }}'
+      mac: '{{ trigger.payload_json.mac }}'
+      fw_ver: '{{ trigger.payload_json.fw_ver }}'
+      model: '{{ trigger.payload_json.model }}'
+      mode: '{{ trigger.payload_json.mode | default }}'
+      host: '{{ trigger.payload_json.ip }}'
+- id: '1644877994194'
+  alias: Mikrowelle morgens an
+  description: ''
+  trigger:
+  - platform: time
+    at: '10:00'
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
+    - sun
+  action:
+  - type: turn_on
+    device_id: 034b90190b49113fed548142e7537fcc
+    entity_id: switch.mikrowelle
+    domain: switch
+  mode: single
+- id: '1644878066858'
+  alias: Mikrowelle abends aus
+  description: ''
+  trigger:
+  - platform: time
+    at: '23:00'
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
+    - sun
+  action:
+  - type: turn_off
+    device_id: 034b90190b49113fed548142e7537fcc
+    entity_id: switch.mikrowelle
+    domain: switch
+  mode: single
+- id: '1646639581197'
+  alias: Arbeitsbeleuchtung
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motioneye_motion_detected
+    to: 'on'
+  condition: []
+  action:
+  - service: timer.start
+    data: {}
+    target:
+      entity_id: timer.office_occupied
+  mode: single
+- id: '1646640422554'
+  alias: Feierabend
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: timer.office_occupied
+    to: idle
+  condition: []
+  action:
+  - service: script.feierabend
+    data: {}
+  mode: single
+- id: '1646652931001'
+  alias: Druckerlicht an wenn Druck fast fertig
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.octoprint_print_time_left
+    below: '30'
+  condition: []
+  action:
+  - type: turn_on
+    device_id: 8b90320cb352ec3bdb8b1ff8125606f5
+    entity_id: switch.druckerlicht
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 2
+      seconds: 0
+      milliseconds: 0
+  - type: turn_off
+    device_id: 8b90320cb352ec3bdb8b1ff8125606f5
+    entity_id: switch.druckerlicht
+    domain: switch
+  mode: single
+- id: '1646825875759'
+  alias: Daniel BLE tracking
+  description: Set a device tracker based on Daniels iPhone and Venu 2
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: state
+    entity_id: sensor.daniel_ble
+  condition: []
+  action:
+  - service: device_tracker.see
+    data_template:
+      dev_id: daniel_ble
+      location_name: "{% if is_state('sensor.daniel_ble', 'not_home') -%}\n  not_home\n\
+        {%- else -%}\n  home\n{%- endif %}\n"
+  mode: single
+- id: '1646852885688'
+  alias: Auf Arbeit
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: device_tracker.daniel_ble
+    to: office
+  - type: motion
+    platform: device
+    device_id: 352ad6bf32b06065348bea8b8cb50cac
+    entity_id: binary_sensor.hue_motion_sensor_1_motion
+    domain: binary_sensor
+  condition: []
+  action:
+  - service: timer.start
+    data: {}
+    target:
+      entity_id: timer.office_occupied
+  mode: single
+- id: '1647703831198'
+  alias: Wärmelampe timer starten
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.warmelampe_effektiv
+    to: 'on'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.warmelampe_langer
+        state: 'on'
+      sequence:
+      - service: timer.start
+        data:
+          duration: '1:00:00'
+        target:
+          entity_id: timer.warmelampe
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.warmelampe_langer
+    default:
+    - service: timer.start
+      data:
+        duration: 00:15:00
+      target:
+        entity_id: timer.warmelampe
+  mode: single
+- id: '1647704077677'
+  alias: Wärmelampe timer beendet
+  description: ''
+  trigger:
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.warmelampe
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 436abad22dd1e69de0d2d2a51d1e7099
+    entity_id: switch.warmelampe
+    domain: switch
+  - type: turn_off
+    device_id: 70709a5db74945ae4ab139f622bc1057
+    entity_id: light.innr_rb_250_c_59aa6efe_level_light_color_on_off
+    domain: light
+  mode: single
+- id: '1647704443606'
+  alias: Wärmelampe timer verlängern
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.warmelampe_langer
+    to: 'on'
+  condition: []
+  action:
+  - service: timer.start
+    data:
+      duration: '1:00:00'
+    target:
+      entity_id: timer.warmelampe
+  - type: turn_on
+    device_id: 436abad22dd1e69de0d2d2a51d1e7099
+    entity_id: switch.warmelampe
+    domain: switch
+  mode: single
+- id: '1647898463182'
+  alias: Monitor aus - Licht aus
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.monitor_in_use
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.daniel_schreibtisch
+  mode: single
+- id: '1647977099029'
+  alias: Wickelecke Button gedrückt
+  description: ''
+  trigger:
+  - device_id: f7fbc9344e36ec2ec9db970f866fe1ab
+    domain: zha
+    platform: device
+    type: remote_button_short_release
+    subtype: turn_on
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.warmelampe_effektiv
+        state: 'on'
+      sequence:
+      - service: script.wickeln_fertig
+        data: {}
+    default:
+    - service: script.wickeln
+      data: {}
+  mode: single
+- id: '1648008190487'
+  alias: Wickelecke Button lange gedrückt
+  description: ''
+  trigger:
+  - device_id: f7fbc9344e36ec2ec9db970f866fe1ab
+    domain: zha
+    platform: device
+    type: remote_button_long_press
+    subtype: turn_on
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 436abad22dd1e69de0d2d2a51d1e7099
+    entity_id: switch.warmelampe
+    domain: switch
+  mode: single
+- id: '1648062274112'
+  alias: Wärmelampe manuell aus
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_off
+    device_id: 436abad22dd1e69de0d2d2a51d1e7099
+    entity_id: switch.warmelampe
+    domain: switch
+  condition: []
+  action:
+  - service: timer.cancel
+    data: {}
+    target:
+      entity_id: timer.warmelampe
+  mode: single

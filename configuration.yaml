@@ -1,0 +1,152 @@
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+python_script:
+
+logger:
+  default: info
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - 192.168.50.87
+    - 172.19.0.0/24
+
+mqtt:
+  broker: 192.168.50.5
+  discovery: true
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+template: !include templates.yaml
+frontend:
+  themes: !include_dir_merge_named themes
+
+
+camera:
+  - platform: mjpeg
+    name: OctoPrint
+    still_image_url: http://192.168.50.55/webcam/?action=snapshot
+    mjpeg_url: http://192.168.50.55/webcam/?action=stream
+
+stream:
+
+wake_on_lan:
+
+switch:
+  - platform: wake_on_lan
+    name: RAW S1
+    host: raw.lan
+    mac: "2C:F0:5D:95:DD:14"
+    turn_off:
+      service: script.raw_hibernate
+
+light:
+  - platform: group
+    name: Daniel Schreibtisch
+    unique_id: daniels_schreibtisch
+    entities:
+      - light.daniel_schreibtisch_links
+      - light.daniel_schreibtisch_mitte
+      - light.daniel_schreibtisch_rechts
+
+cover:
+  - platform: group
+    name: Schlafzimmer Rollos
+    unique_id: schlafzimmer_rollos
+    entities:
+      - cover.schlafzimmer_rollo_balkon
+      - cover.schlafzimmer_rollo_links
+      - cover.schlafzimmer_rollo_rechts
+  - platform: group
+    name: Wohnzimmer Rollos
+    unique_id: wohnzimmer_rollos
+    entities:
+      - cover.wohnzimmer_rollo
+      - cover.wohnzimmer_rollo_balkon_links
+      - cover.wohnzimmer_rollo_balkon_rechts
+      - cover.kuche_rollo_links
+      - cover.kuche_rollo_rechts
+
+spotify:
+  client_id: !secret spotify_client_id
+  client_secret: !secret spotify_client_secret
+
+vacuum:
+  - platform: xiaomi_vacuum
+    host: 192.168.50.35
+    token: !secret xiaomi_token
+    name: Dreame D9
+    
+
+calendar:
+  - platform: todoist
+    token: !secret todoist_api_key 
+
+google:
+  client_id: !secret google_client_id
+  client_secret: !secret google_client_secret
+
+sensor:
+  - platform: mqtt_room
+    device_id: "apple:iphone13-2"
+    name: 'Daniels iPhone'
+    state_topic: 'espresense/rooms'
+    timeout: 60
+    away_timeout: 120
+  - platform: mqtt_room
+    device_id: "name:venu-2"
+    name: 'Daniels Venu 2'
+    state_topic: 'espresense/rooms'
+    timeout: 60
+    away_timeout: 120
+  - platform: mqtt_room
+    device_id: "name:oura_a038f8e05cb6"
+    name: 'Daniels Oura'
+    state_topic: 'espresense/rooms'
+    timeout: 60
+    away_timeout: 120
+  - platform: mqtt_room
+    device_id: "apple:ipad8-11"
+    name: 'Daniels iPad'
+    state_topic: 'espresense/rooms'
+    timeout: 60
+    away_timeout: 120
+  - platform: mqtt_room
+    device_id: "apple:macbookpro16-2"
+    name: 'Daniels MacBook'
+    state_topic: 'espresense/rooms'
+    timeout: 60
+    away_timeout: 120
+
+homeassistant:
+  customize:
+    device_tracker.daniel_ble:
+      icon: mdi:bluetooth
+    sensor.daniel_ble:
+      icon: mdi:bluetooth
+    sensor.daniels_oura:
+      icon: mdi:ring
+    sensor.daniels_venu_2:
+      icon: mdi:watch
+    sensor.daniels_iphone:
+      icon: mdi:cellphone
+    sensor.daniels_ipad:
+      icon: mdi:tablet
+    sensor.daniels_macbook:
+      icon: mdi:laptop
+
+zha:
+  zigpy_config:
+    ota:
+      otau_directory: /config/zigpy_ota
+      ikea_provider: true
+      ledvance_provider: true

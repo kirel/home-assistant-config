@@ -1,0 +1,58 @@
+- id: '1647769716640'
+  name: Wickeln nachts
+  entities:
+    light.innr_rb_250_c_59aa6efe_level_light_color_on_off:
+      min_mireds: 153
+      max_mireds: 555
+      effect_list:
+      - colorloop
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: color_temp
+      brightness: 254
+      color_temp: 467
+      hs_color:
+      - 30.015
+      - 87.382
+      rgb_color:
+      - 255
+      - 143
+      - 32
+      xy_color:
+      - 0.585
+      - 0.386
+      off_brightness:
+      friendly_name: Kommode
+      supported_features: 63
+      state: 'on'
+  icon: mdi:weather-night
+- id: '1647770049938'
+  name: Wickeln tagsüber
+  entities:
+    light.innr_rb_250_c_59aa6efe_level_light_color_on_off:
+      min_mireds: 153
+      max_mireds: 555
+      effect_list:
+      - colorloop
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: color_temp
+      brightness: 254
+      color_temp: 337
+      hs_color:
+      - 27.881
+      - 57.799
+      rgb_color:
+      - 255
+      - 176
+      - 107
+      xy_color:
+      - 0.499
+      - 0.384
+      off_brightness:
+      friendly_name: Kommode
+      supported_features: 63
+      state: 'on'
+  icon: mdi:baby

@@ -1,0 +1,112 @@
+
+- cal_id: iur0v0epmu1pobri56hnr669tja1qca9@import.calendar.google.com
+  entities:
+  - device_id: trips_von_danishkirel_gmail_com_auf_kayak
+    ignore_availability: true
+    name: Trips von danishkirel@gmail.com auf KAYAK
+    track: true
+
+- cal_id: iqpttnt8m8ndn3b3rq130tc6ik4kiung@import.calendar.google.com
+  entities:
+  - device_id: absence_io_user_absences
+    ignore_availability: true
+    name: absence.io user absences
+    track: true
+
+- cal_id: addressbook#contacts@group.v.calendar.google.com
+  entities:
+  - device_id: geburtstage
+    ignore_availability: true
+    name: Geburtstage
+    track: true
+
+- cal_id: danishkirel@gmail.com
+  entities:
+  - device_id: personlich
+    ignore_availability: true
+    name: "Pers\xF6nlich"
+    track: true
+
+- cal_id: cod1u1gtl168f9g5n67k36em18@group.calendar.google.com
+  entities:
+  - device_id: habits
+    ignore_availability: true
+    name: Habits
+    track: true
+
+- cal_id: nhch9ahfvh13p30tob8qnaqhnk@group.calendar.google.com
+  entities:
+  - device_id: evernote
+    ignore_availability: true
+    name: Evernote
+    track: true
+
+- cal_id: p1kpgsfi88i2d3e409te670b8s8rd4qa@import.calendar.google.com
+  entities:
+  - device_id: doodle_kalender
+    ignore_availability: true
+    name: Doodle Kalender
+    track: true
+
+- cal_id: r9un5pljut9mr7mv079acmb27g@group.calendar.google.com
+  entities:
+  - device_id: trello
+    ignore_availability: true
+    name: Trello
+    track: true
+
+- cal_id: 4l4ksk4k6dj5phuec1902ja4d496itpd@import.calendar.google.com
+  entities:
+  - device_id: my_meetups
+    ignore_availability: true
+    name: My Meetups
+    track: true
+
+- cal_id: 582r8da9a52b05mmm42rag77lk@group.calendar.google.com
+  entities:
+  - device_id: daniel_sabine
+    ignore_availability: true
+    name: Daniel/Sabine
+    track: true
+
+- cal_id: nkk88ct0ekd381s3b7s2pd9bj0@group.calendar.google.com
+  entities:
+  - device_id: geschaftlich
+    ignore_availability: true
+    name: "Gesch\xE4ftlich"
+    track: true
+
+- cal_id: 1q69vjb2e8rqluq43i09od01u4@group.calendar.google.com
+  entities:
+  - device_id: sport
+    ignore_availability: true
+    name: Sport
+    track: true
+
+- cal_id: s30b1rkqrf0684ame5qombrdbg@group.calendar.google.com
+  entities:
+  - device_id: todoist
+    ignore_availability: true
+    name: Todoist
+    track: true
+
+- cal_id: de.german#holiday@group.v.calendar.google.com
+  entities:
+  - device_id: feiertage_in_deutschland
+    ignore_availability: true
+    name: Feiertage in Deutschland
+    track: true
+
+- cal_id: family07852282008462280294@group.calendar.google.com
+  entities:
+  - device_id: familie
+    ignore_availability: true
+    name: Familie
+    track: true
+
+- cal_id: 9dcanj53alpjtbda6eb15poff0@group.calendar.google.com
+  entities:
+  - device_id: rescuetime
+    ignore_availability: true
+    name: RescueTime
+    track: true

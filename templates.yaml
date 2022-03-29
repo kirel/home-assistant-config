@@ -1,0 +1,59 @@
+- trigger:
+    - platform: event
+      event_type: motioneye.motion_detected
+  binary_sensor:
+    - name: Motioneye motion detected
+      state: "on"
+      auto_off: 5
+      device_class: motion
+- sensor:
+    - name: "Daniel BLE"
+      state: >
+        {#  
+        Use oura unless not_home -
+        then use venu unless not_home - 
+        then use iPhone unless not_home -
+        then use mobile app
+        #}
+        {% if not is_state("sensor.daniels_oura", "not_home") %}
+          {{ states('sensor.daniels_oura') }}
+        {% elif not is_state("sensor.daniels_venu_2", "not_home") %}
+          {{ states('sensor.daniels_venu_2') }}
+        {% elif not is_state("sensor.daniels_iphone", "not_home") %}
+          {{ states('sensor.daniels_iphone') }}
+        {% else %}
+          {{ states('device_tracker.iphone') }}
+        {% endif %}
+- binary_sensor:
+    - name: "Wärmelampe effektiv"
+      unique_id: warmelampe_in_use
+      state: >
+        {{ states('sensor.warmelampe_power')|float > 1 }}
+      icon: >
+          {% if is_state("binary_sensor.warmelampe_effektiv", "on") %}
+            mdi:fire
+          {% else %}
+            mdi:fire-off
+          {% endif %}
+    - name: "Monitor in use"
+      unique_id: monitor_in_use
+      state: >
+        {{ states('sensor.monitor_power')|float > 5 }}
+      icon: >
+          {% if is_state("binary_sensor.monitor_in_use", "on") %}
+            mdi:monitor
+          {% else %}
+            mdi:monitor-off
+          {% endif %}
+    - name: "Waschmaschine läuft"
+      unique_id: waschmaschine_in_use
+      delay_off:
+          minutes: 1
+      state: >
+        {{ states('sensor.waschmaschine_current_consumption')|float > 5 }}
+      icon: >
+          {% if is_state("binary_sensor.waschmaschine_lauft", "on") %}
+            mdi:washing-machine
+          {% else %}
+            mdi:washing-machine-off
+          {% endif %}

@@ -1,0 +1,5 @@
+everyone:
+  name: Bewohner
+  entities:
+    - person.daniel_kirsch
+    - person.sabine_eichling

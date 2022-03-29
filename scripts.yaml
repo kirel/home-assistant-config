@@ -1,0 +1,236 @@
+octocast:
+  sequence:
+  - service: cast.show_lovelace_view
+    data:
+      entity_id: media_player.buro
+      dashboard_path: lovelace-prusa
+      view_path: '0'
+  - type: turn_on
+    device_id: 8b90320cb352ec3bdb8b1ff8125606f5
+    entity_id: switch.druckerlicht
+    domain: switch
+  mode: single
+  icon: mdi:webcam
+  alias: OctoCast
+buzzer:
+  sequence:
+  - type: turn_on
+    device_id: 6a879e5cfd16728e80035dde9ea32461
+    entity_id: switch.haustur
+    domain: switch
+  mode: single
+  alias: Buzzer
+alle_lichter_aus:
+  sequence:
+  - service: light.turn_off
+    target:
+      area_id:
+      - ec3b135bee00b2ab1ebd6626e0a690ca
+      - weihnachten
+      - 29e604877babae723f8a353a2f1bd4f5
+      - c03d1a02f0bcd1b62fb6f8e50ef55e04
+      - gastebad
+      - 47fa969d1b56a69f8725106a7db12f1b
+      - efdc37a3c400d1f5c61eff6aaf14282d
+      - cf9a68fe88bae87e9a7425691f86f38c
+      - e20a5307dfa7dc9c341c7e2a101722fe
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.kuche_licht
+      - switch.schlafzimmer_licht
+  mode: single
+  alias: Alle Lichter aus
+klimacheck_buro:
+  alias: Klimacheck Büro
+  sequence:
+  - service: frontend.set_theme
+    data:
+      name: Google Dark Theme
+  - service: cast.show_lovelace_view
+    data:
+      entity_id: media_player.buro
+      dashboard_path: lovelace-dash
+      view_path: klimaalarm-buro
+  mode: single
+klimacheck_schlafzimmer:
+  alias: Klimacheck Schlafzimmer
+  sequence:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.netatmo_wohnung_weather_station_schlafzimmer_co2
+        above: '1500'
+      sequence:
+      - service: tts.google_translate_say
+        data:
+          entity_id: media_player.schlafzimmer
+          message: Bitte lüften. CO2 bei {{states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')}}
+            PPM.
+          language: de
+    default:
+    - service: tts.google_translate_say
+      data:
+        entity_id: media_player.schlafzimmer
+        message: CO2 bei {{states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')}}
+          PPM.
+        language: de
+  mode: single
+schlafen:
+  sequence:
+  - type: turn_off
+    device_id: ba2aa52175de8d5dd4f7ef1743131626
+    entity_id: switch.schlafzimmer_licht
+    domain: switch
+  - scene: scene.schlafzimmer_schlafen
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.netatmo_wohnung_weather_station_schlafzimmer_co2
+        above: '1500'
+      sequence:
+      - service: tts.google_translate_say
+        data:
+          entity_id: media_player.schlafzimmer
+          message: Bitte noch lüften. CO2 bei {{states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')}}
+            PPM.
+          language: de
+      - device_id: d4fe64964b90b59d38287dd07b740305
+        domain: cover
+        entity_id: cover.schlafzimmer_rollo_balkon
+        type: set_position
+        position: 20
+      - device_id: 47f565dff4d81fb6a7a092460f685ce1
+        domain: cover
+        entity_id: cover.schlafzimmer_rollo_links
+        type: set_position
+        position: 20
+      - device_id: 12eb92e3c31383da36745eebc66f6b57
+        domain: cover
+        entity_id: cover.schlafzimmer_rollo_rechts
+        type: set_position
+        position: 20
+      - delay:
+          hours: 0
+          minutes: 5
+          seconds: 0
+          milliseconds: 0
+      - device_id: 12eb92e3c31383da36745eebc66f6b57
+        domain: cover
+        entity_id: cover.schlafzimmer_rollo_rechts
+        type: set_position
+        position: 0
+      - device_id: 47f565dff4d81fb6a7a092460f685ce1
+        domain: cover
+        entity_id: cover.schlafzimmer_rollo_links
+        type: set_position
+        position: 0
+      - device_id: d4fe64964b90b59d38287dd07b740305
+        domain: cover
+        entity_id: cover.schlafzimmer_rollo_balkon
+        type: set_position
+        position: 0
+      - service: tts.google_translate_say
+        data:
+          entity_id: media_player.schlafzimmer
+          message: CO2 bei {{states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')}}
+            PPM.
+          language: de
+    default:
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 5
+        milliseconds: 0
+    - service: tts.google_translate_say
+      data:
+        entity_id: media_player.schlafzimmer
+        message: CO2 bei {{states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')}}
+          PPM.
+        language: de
+  mode: single
+  icon: mdi:sleep
+  alias: Schlafen
+arbeiten:
+  alias: Arbeiten
+  sequence:
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+      kelvin: 6000
+    target:
+      device_id:
+      - 27a62cb21a147db3247e9a4087504411
+      - bddc70e2a1351503a07796a0ab3bbca1
+      - e2fe48e34790144a198ca1a174e631ec
+  mode: single
+  icon: mdi:account-hard-hat
+feierabend:
+  alias: Feierabend
+  sequence:
+  - service: light.turn_off
+    data:
+      transition: 3
+    target:
+      device_id:
+      - 27a62cb21a147db3247e9a4087504411
+      - bddc70e2a1351503a07796a0ab3bbca1
+      - e2fe48e34790144a198ca1a174e631ec
+  mode: single
+  icon: mdi:sofa-single-outline
+raw_shutdown:
+  alias: RAW - Shutdown
+  sequence:
+  - service: mqtt.publish
+    data:
+      topic: iotlink/workgroup/raw/commands/shutdown
+      payload: ''
+raw_hibernate:
+  alias: RAW - Hibernate
+  sequence:
+  - service: mqtt.publish
+    data:
+      topic: iotlink/workgroup/raw/commands/hibernate
+      payload: ''
+wickeln:
+  alias: Wickeln
+  sequence:
+  - type: turn_on
+    device_id: 436abad22dd1e69de0d2d2a51d1e7099
+    entity_id: switch.warmelampe
+    domain: switch
+  - choose:
+    - conditions:
+      - condition: time
+        after: '22:00:00'
+        before: 08:00:00
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.wickeln_nachts
+        metadata: {}
+    default:
+    - service: scene.turn_on
+      target:
+        entity_id: scene.wickeln_tagsuber
+      metadata: {}
+  mode: single
+  icon: mdi:baby
+wickeln_fertig:
+  sequence:
+  - type: turn_off
+    device_id: 70709a5db74945ae4ab139f622bc1057
+    entity_id: light.innr_rb_250_c_59aa6efe_level_light_color_on_off
+    domain: light
+  - type: turn_off
+    device_id: 436abad22dd1e69de0d2d2a51d1e7099
+    entity_id: switch.warmelampe
+    domain: switch
+  mode: single
+  icon: mdi:stop
+  alias: Wickeln fertig
