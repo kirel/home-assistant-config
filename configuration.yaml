@@ -102,35 +102,51 @@ media_player:
 
 sensor:
   - platform: mqtt_room
-    device_id: "apple:iphone13-2"
+    device_id: "apple:1006:10-8"
+    #device_id: "apple:iphone13-2"
     name: 'Daniels iPhone'
     state_topic: 'espresense/rooms'
     timeout: 60
     away_timeout: 120
   - platform: mqtt_room
-    device_id: "name:venu-2"
+    device_id: "known:90f15707f857"
     name: 'Daniels Venu 2'
     state_topic: 'espresense/rooms'
     timeout: 60
     away_timeout: 120
   - platform: mqtt_room
-    device_id: "name:oura_a038f8e05cb6"
+    device_id: "known:a038f8e05cb6"
     name: 'Daniels Oura'
     state_topic: 'espresense/rooms'
     timeout: 60
     away_timeout: 120
   - platform: mqtt_room
-    device_id: "apple:ipad8-11"
+    device_id: "apple:1005:9-6"
+    #device_id: "apple:ipad8-11"
     name: 'Daniels iPad'
     state_topic: 'espresense/rooms'
     timeout: 60
     away_timeout: 120
   - platform: mqtt_room
-    device_id: "apple:macbookpro16-2"
+    device_id: "apple:1005:16-12"
+    #device_id: "apple:macbookpro16-2"
     name: 'Daniels MacBook'
     state_topic: 'espresense/rooms'
     timeout: 60
     away_timeout: 120
+  # Tiles
+  - platform: mqtt_room
+    device_id: "tile:d3f2a809e483"
+    name: 'Black Tile'
+    state_topic: 'espresense/rooms'
+    timeout: 60
+    away_timeout: 120  
+  - platform: mqtt_room
+    device_id: "tile:d8a5b883bfb5"
+    name: 'White Tile'
+    state_topic: 'espresense/rooms'
+    timeout: 60
+    away_timeout: 120  
   # D9
   - platform: history_stats
     name: vacuum cleaning since last emptied
