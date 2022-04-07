@@ -8,6 +8,12 @@ panel_iframe:
     url: "http://192.168.50.5:8443"
     icon: "mdi:microsoft-visual-studio-code"
     require_admin: true
+  portainer:
+    title: "Portainer"
+    url: "http://portainer.lan"
+    icon: "mdi:docker"
+    require_admin: true
+  
 
 python_script:
 
