@@ -131,6 +131,22 @@ sensor:
     state_topic: 'espresense/rooms'
     timeout: 60
     away_timeout: 120
+  # D9
+  - platform: history_stats
+    name: vacuum cleaning since last emptied
+    entity_id: vacuum.dreame_d9
+    state: "cleaning"
+    type: count
+    start: "{{ states.input_boolean.vacuum_emptied.last_changed }}"
+    end: "{{ now() }}"
+  # PS5
+  - platform: command_line
+    name: ps5 ext
+    command: python3 /config/sensors/ps5.py -q 192.168.50.169
+    scan_interval: 10
+  # Aftership
+  - platform: aftership
+    api_key: "074798d7-1644-426d-a6eb-613e15d5f8ae"
 
 binary_sensor:
   # https://github.com/wicol/ha-config/blob/master/binary_sensors.yaml#L21
