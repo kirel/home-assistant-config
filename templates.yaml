@@ -48,12 +48,22 @@
     - name: "Waschmaschine läuft"
       unique_id: waschmaschine_in_use
       delay_off:
-          minutes: 1
+          minutes: 5
       state: >
-        {{ states('sensor.waschmaschine_current_consumption')|float > 5 }}
+        {{ states('sensor.waschmaschine_current')|float > 1 }}
       icon: >
           {% if is_state("binary_sensor.waschmaschine_lauft", "on") %}
             mdi:washing-machine
           {% else %}
             mdi:washing-machine-off
+          {% endif %}
+    - name: vacuum needs emptying
+      unique_id: vacuum_needs_emptying
+      state: >
+        {{ states('sensor.vacuum_cleaning_since_last_emptied')|int >= states('input_number.vacuum_empty_threshold')|int }}
+      icon: >
+          {% if is_state("binary_sensor.vacuum_needs_emptying", "on") %}
+            mdi:delete-empty
+          {% else %}
+            mdi:delete-outline
           {% endif %}
