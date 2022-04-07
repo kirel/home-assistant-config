@@ -840,8 +840,7 @@
     data:
       message: Groß oder klein?
       data:
-        shortcut:
-          name: Baby Tracker
+        url: shortcuts://run-shortcut?name=Baby%20Tracker
         actions:
         - action: CLEAN
           title: Sauber
@@ -851,7 +850,7 @@
           uri: shortcuts://run-shortcut?name=Nasse%20Windel
         - action: DIRTY
           title: Dreckig
-          uri: shortcuts://run-shortcut?name=Dreckige%20Windel
+          uri: shortcuts://run-shortcut?name=Schmutzige%20Windel
         - action: MIXED
           title: Gemischt
           uri: shortcuts://run-shortcut?name=Gemischte%20Windel
