@@ -271,9 +271,23 @@
   - platform: numeric_state
     entity_id: sensor.netatmo_wohnung_weather_station_co2
     above: '1800'
+  - type: motion
+    platform: device
+    device_id: 352ad6bf32b06065348bea8b8cb50cac
+    entity_id: binary_sensor.hue_motion_sensor_1_motion
+    domain: binary_sensor
   condition:
   - condition: time
-    before: '20:00'
+    before: '20:00:00'
+    after: 07:00:00
+  - type: is_motion
+    condition: device
+    device_id: 352ad6bf32b06065348bea8b8cb50cac
+    entity_id: binary_sensor.hue_motion_sensor_1_motion
+    domain: binary_sensor
+  - condition: numeric_state
+    entity_id: sensor.netatmo_wohnung_weather_station_co2
+    above: '1800'
   action:
   - type: turn_on
     device_id: 356ebc7983e637c821be0a87dc402fe4
@@ -281,6 +295,7 @@
     domain: light
     brightness_pct: 1
   - service: script.klimacheck_buro
+    data: {}
   mode: single
 - id: '1643811985877'
   alias: Klimaalarm Büro vorbei
@@ -289,19 +304,15 @@
   - platform: numeric_state
     entity_id: sensor.netatmo_wohnung_weather_station_co2
     below: '1800'
-  condition: []
-  action:
-  - type: turn_off
-    device_id: 356ebc7983e637c821be0a87dc402fe4
-    entity_id: light.hue_filament_bulb_1
-    domain: light
-  mode: single
-- id: '1643842659601'
-  alias: Klimaalarm Büro schlafen
-  description: ''
-  trigger:
-  - platform: time
-    at: '20:00'
+  - type: no_motion
+    platform: device
+    device_id: 352ad6bf32b06065348bea8b8cb50cac
+    entity_id: binary_sensor.hue_motion_sensor_1_motion
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   condition: []
   action:
   - type: turn_off
@@ -319,9 +330,20 @@
     to: 'off'
   condition: []
   action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.washing_machine_done
   - service: notify.notify
     data:
-      message: Waschmaschine fertig.
+      message: Die Waschmaschine ist fertig.
+      data:
+        url: /lovelace-dash/haushalt
+        tag: washing_machine_done
+  - service: persistent_notification.create
+    data:
+      message: Die Waschmaschine kann ausgeräumt werden.
+      notification_id: washing_machine_done
   mode: single
 - id: '1644472487354'
   alias: Aqara Cube
@@ -367,6 +389,8 @@
   - service: notify.mobile_app_mobilgeraet
     data:
       message: Badtür ist noch offen.
+      data:
+        tag: bathroomdoor_open
   - service: tts.google_translate_say
     data:
       entity_id: media_player.badezimmer
@@ -387,6 +411,11 @@
   - service: persistent_notification.dismiss
     data:
       notification_id: bathroom_door
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      message: clear_notification
+      data:
+        tag: bathroomdoor_open
   mode: single
 - id: '1644593133663'
   alias: Küchenschublade macht das Licht an
@@ -685,6 +714,10 @@
     device_id: 436abad22dd1e69de0d2d2a51d1e7099
     entity_id: switch.warmelampe
     domain: switch
+  - service: scene.turn_on
+    target:
+      entity_id: scene.stillen
+    metadata: {}
   mode: single
 - id: '1648062274112'
   alias: Wärmelampe manuell aus
@@ -701,4 +734,125 @@
     data: {}
     target:
       entity_id: timer.warmelampe
+  mode: single
+- id: '1648655693183'
+  alias: D9 fährt
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: vacuum.dreame_d9
+    to: cleaning
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.vacuum_emptied
+  mode: single
+- id: '1648665239768'
+  alias: D9 leeren
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: vacuum.dreame_d9
+    from: cleaning
+  condition:
+  - condition: state
+    entity_id: binary_sensor.vacuum_needs_emptying
+    state: 'on'
+  action:
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      message: D9 leeren.
+      data:
+        shortcut:
+          name: D9 geleert
+        actions:
+        - action: EMPTIED
+          title: Geleert
+  mode: single
+- id: '1648668046071'
+  alias: D9 geleert
+  description: ''
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: EMPTIED
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.vacuum_emptied
+  mode: single
+- id: '1649019308494'
+  alias: Waschmaschine ausgeräumt
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.washing_machine_done
+    from: 'on'
+    to: 'off'
+  condition: []
+  action:
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      message: clear_notification
+      data:
+        tag: washing_machine_done
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: washing_machine_done
+  mode: single
+- id: '1649020261386'
+  alias: Waschmaschine automatisch ausgeräumt
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.daniel_ble
+    to: washroom
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  - platform: state
+    entity_id: binary_sensor.waschmaschine_lauft
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.washing_machine_done
+  mode: single
+- id: '1649189556776'
+  alias: Wickeln tracking
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.warmelampe_effektiv
+    from: 'on'
+    to: 'off'
+  condition: []
+  action:
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      message: Groß oder klein?
+      data:
+        shortcut:
+          name: Baby Tracker
+        actions:
+        - action: CLEAN
+          title: Sauber
+          uri: shortcuts://run-shortcut?name=Trockene%20Windel
+        - action: WET
+          title: Nass
+          uri: shortcuts://run-shortcut?name=Nasse%20Windel
+        - action: DIRTY
+          title: Dreckig
+          uri: shortcuts://run-shortcut?name=Dreckige%20Windel
+        - action: MIXED
+          title: Gemischt
+          uri: shortcuts://run-shortcut?name=Gemischte%20Windel
   mode: single
