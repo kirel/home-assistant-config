@@ -61,33 +61,14 @@ switch:
     mac: "2C:F0:5D:95:DD:14"
     turn_off:
       service: script.raw_hibernate
-
-light:
-  - platform: group
-    name: Daniel Schreibtisch
-    unique_id: daniels_schreibtisch
-    entities:
-      - light.daniel_schreibtisch_links
-      - light.daniel_schreibtisch_mitte
-      - light.daniel_schreibtisch_rechts
-
-cover:
-  - platform: group
-    name: Schlafzimmer Rollos
-    unique_id: schlafzimmer_rollos
-    entities:
-      - cover.schlafzimmer_rollo_balkon
-      - cover.schlafzimmer_rollo_links
-      - cover.schlafzimmer_rollo_rechts
-  - platform: group
-    name: Wohnzimmer Rollos
-    unique_id: wohnzimmer_rollos
-    entities:
-      - cover.wohnzimmer_rollo
-      - cover.wohnzimmer_rollo_balkon_links
-      - cover.wohnzimmer_rollo_balkon_rechts
-      - cover.kuche_rollo_links
-      - cover.kuche_rollo_rechts
+  - platform: command_line
+    switches:
+      ps5:
+        friendly_name: Playstation 5
+        unique_id: ps_5_switch
+        command_state: python3 /config/sensors/ps5.py -b -q 192.168.50.169 | grep -q ON
+        command_on: python3 /config/sensors/ps5.py -u 1012966755 -w 192.168.50.169 # TODO credential in secret?
+        icon_template: "mdi:sony-playstation"
 
 spotify:
   client_id: !secret spotify_client_id
@@ -107,6 +88,17 @@ calendar:
 google:
   client_id: !secret google_client_id
   client_secret: !secret google_client_secret
+
+media_player:
+  - platform: onkyo
+    host: 192.168.50.18
+    name: Pioneer Receiver
+    sources:
+      strm-box: Shield
+      tv: Beamer
+      dvd: Ultra
+      video2: PS5
+      game: Xbox
 
 sensor:
   - platform: mqtt_room
@@ -139,6 +131,14 @@ sensor:
     state_topic: 'espresense/rooms'
     timeout: 60
     away_timeout: 120
+
+binary_sensor:
+  # https://github.com/wicol/ha-config/blob/master/binary_sensors.yaml#L21
+  - platform: command_line
+    name: ps5
+    command: python3 /config/sensors/ps5.py -b -q 192.168.50.169
+    scan_interval: 10
+
 
 homeassistant:
   customize:
