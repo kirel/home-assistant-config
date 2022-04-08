@@ -1,11 +1,3 @@
-- trigger:
-    - platform: event
-      event_type: motioneye.motion_detected
-  binary_sensor:
-    - name: Motioneye motion detected
-      state: "on"
-      auto_off: 5
-      device_class: motion
 - sensor:
     - name: "Daniel BLE"
       state: >
