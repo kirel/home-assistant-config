@@ -765,26 +765,26 @@
     data:
       message: D9 leeren.
       data:
-        shortcut:
-          name: D9 geleert
+        url: /lovelace-dash/haushalt
         actions:
         - action: EMPTIED
           title: Geleert
+          uri: shortcuts://run-shortcut?name=D9%20geleert
   mode: single
 - id: '1648668046071'
   alias: D9 geleert
   description: ''
   trigger:
-  - platform: event
-    event_type: mobile_app_notification_action
-    event_data:
-      action: EMPTIED
+  - platform: state
+    entity_id: input_boolean.vacuum_emptied
+    to: 'on'
   condition: []
   action:
-  - service: input_boolean.turn_on
-    data: {}
+  - service: input_datetime.set_datetime
+    data:
+      datetime: '{{ now() }}'
     target:
-      entity_id: input_boolean.vacuum_emptied
+      entity_id: input_datetime.d9_last_emptied
   mode: single
 - id: '1649019308494'
   alias: Waschmaschine ausgeräumt
