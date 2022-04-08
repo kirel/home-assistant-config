@@ -164,6 +164,11 @@ sensor:
   # Aftership
   - platform: aftership
     api_key: "074798d7-1644-426d-a6eb-613e15d5f8ae"
+  # Fully Kiosk
+  - platform: mqtt
+    state_topic: "fully/event/+/36325f2a-8626fd56"
+    name: "fully_sensor"
+    value_template: '{{value_json.event}}'
 
 binary_sensor:
   # https://github.com/wicol/ha-config/blob/master/binary_sensors.yaml#L21
@@ -173,6 +178,16 @@ binary_sensor:
     command: python3 /config/sensors/ps5.py -b -q 192.168.50.169
     scan_interval: 10
 
+browser_mod:
+  prefix: "browser_"
+  devices:
+    f283d3cb-d21f61ef:
+      name: dashboard
+      camera: true
+      disable:
+        - light
+        - media_player
+  disable: all
 
 homeassistant:
   customize:
