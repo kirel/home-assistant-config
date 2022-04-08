@@ -153,11 +153,12 @@ sensor:
     entity_id: vacuum.dreame_d9
     state: "cleaning"
     type: count
-    start: "{{ states.input_boolean.vacuum_emptied.last_changed }}"
+    start: "{{ state_attr('input_datetime.d9_last_emptied', 'timestamp') }}"
     end: "{{ now() }}"
   # PS5
   - platform: command_line
     name: ps5 ext
+    unique_id: ps5_ext
     command: python3 /config/sensors/ps5.py -q 192.168.50.169
     scan_interval: 10
   # Aftership
@@ -168,6 +169,7 @@ binary_sensor:
   # https://github.com/wicol/ha-config/blob/master/binary_sensors.yaml#L21
   - platform: command_line
     name: ps5
+    unique_id: ps5
     command: python3 /config/sensors/ps5.py -b -q 192.168.50.169
     scan_interval: 10
 
