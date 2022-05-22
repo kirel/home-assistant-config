@@ -232,13 +232,13 @@
   alias: Licher aus wenn nicht zuhause
   description: ''
   trigger:
-  - platform: state
-    entity_id: group.everyone
-    to: not_home
+  - platform: numeric_state
+    entity_id: zone.home
     for:
       hours: 0
       minutes: 5
       seconds: 0
+    below: '1'
   condition: []
   action:
   - service: script.alle_lichter_aus
@@ -268,9 +268,9 @@
   alias: Klimaalarm Büro
   description: ''
   trigger:
-  - platform: numeric_state
-    entity_id: sensor.netatmo_wohnung_weather_station_co2
-    above: '1800'
+  - platform: state
+    entity_id: binary_sensor.co2_alarm_buro
+    to: 'on'
   - type: motion
     platform: device
     device_id: 352ad6bf32b06065348bea8b8cb50cac
@@ -285,9 +285,9 @@
     device_id: 352ad6bf32b06065348bea8b8cb50cac
     entity_id: binary_sensor.hue_motion_sensor_1_motion
     domain: binary_sensor
-  - condition: numeric_state
-    entity_id: sensor.netatmo_wohnung_weather_station_co2
-    above: '1800'
+  - condition: state
+    entity_id: binary_sensor.co2_alarm_buro
+    state: 'on'
   action:
   - type: turn_on
     device_id: 356ebc7983e637c821be0a87dc402fe4
@@ -296,14 +296,18 @@
     brightness_pct: 1
   - service: script.klimacheck_buro
     data: {}
+  - service: persistent_notification.create
+    data:
+      notification_id: office_co2
+      message: 🌬 Bitte im Büro lüften.
   mode: single
 - id: '1643811985877'
   alias: Klimaalarm Büro vorbei
   description: ''
   trigger:
-  - platform: numeric_state
-    entity_id: sensor.netatmo_wohnung_weather_station_co2
-    below: '1800'
+  - platform: state
+    entity_id: binary_sensor.co2_alarm_buro
+    to: 'off'
   - type: no_motion
     platform: device
     device_id: 352ad6bf32b06065348bea8b8cb50cac
@@ -319,6 +323,9 @@
     device_id: 356ebc7983e637c821be0a87dc402fe4
     entity_id: light.hue_filament_bulb_1
     domain: light
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: office_co2
   mode: single
 - id: '1644165727122'
   alias: Waschmaschine fertig
@@ -342,7 +349,7 @@
         tag: washing_machine_done
   - service: persistent_notification.create
     data:
-      message: Die Waschmaschine kann ausgeräumt werden.
+      message: 🧺 Die Waschmaschine kann ausgeräumt werden.
       notification_id: washing_machine_done
   mode: single
 - id: '1644472487354'
@@ -385,7 +392,7 @@
   - service: persistent_notification.create
     data:
       notification_id: bathroom_door
-      message: Badtür ist noch offen.
+      message: 🪟 Badtür ist noch offen.
   - service: notify.mobile_app_mobilgeraet
     data:
       message: Badtür ist noch offen.
@@ -593,9 +600,16 @@
   alias: Wärmelampe timer starten
   description: ''
   trigger:
-  - platform: state
-    entity_id: binary_sensor.warmelampe_effektiv
-    to: 'on'
+  - platform: device
+    type: turned_on
+    device_id: 5021d5f39bca4bd5277fb35408a7b63c
+    entity_id: light.wickeltisch
+    domain: light
+  - platform: device
+    type: turned_on
+    device_id: b2f6c6e8419ebaeff38b39d11000ab8e
+    entity_id: switch.warmelampe
+    domain: switch
   condition: []
   action:
   - choose:
@@ -630,14 +644,8 @@
       entity_id: timer.warmelampe
   condition: []
   action:
-  - type: turn_off
-    device_id: 436abad22dd1e69de0d2d2a51d1e7099
-    entity_id: switch.warmelampe
-    domain: switch
-  - type: turn_off
-    device_id: 70709a5db74945ae4ab139f622bc1057
-    entity_id: light.innr_rb_250_c_59aa6efe_level_light_color_on_off
-    domain: light
+  - service: script.wickeln_fertig
+    data: {}
   mode: single
 - id: '1647704443606'
   alias: Wärmelampe timer verlängern
@@ -654,12 +662,12 @@
     target:
       entity_id: timer.warmelampe
   - type: turn_on
-    device_id: 436abad22dd1e69de0d2d2a51d1e7099
+    device_id: b2f6c6e8419ebaeff38b39d11000ab8e
     entity_id: switch.warmelampe
     domain: switch
   mode: single
 - id: '1647898463182'
-  alias: Monitor aus - Licht aus
+  alias: Arbeitsbeleuchtung aus
   description: ''
   trigger:
   - platform: state
@@ -667,57 +675,16 @@
     to: 'off'
     for:
       hours: 0
-      minutes: 0
-      seconds: 10
+      minutes: 5
+      seconds: 0
   condition: []
   action:
   - service: light.turn_off
     data: {}
     target:
-      entity_id: light.daniel_schreibtisch
-  mode: single
-- id: '1647977099029'
-  alias: Wickelecke Button gedrückt
-  description: ''
-  trigger:
-  - device_id: f7fbc9344e36ec2ec9db970f866fe1ab
-    domain: zha
-    platform: device
-    type: remote_button_short_release
-    subtype: turn_on
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: binary_sensor.warmelampe_effektiv
-        state: 'on'
-      sequence:
-      - service: script.wickeln_fertig
-        data: {}
-    default:
-    - service: script.wickeln
-      data: {}
-  mode: single
-- id: '1648008190487'
-  alias: Wickelecke Button lange gedrückt
-  description: ''
-  trigger:
-  - device_id: f7fbc9344e36ec2ec9db970f866fe1ab
-    domain: zha
-    platform: device
-    type: remote_button_long_press
-    subtype: turn_on
-  condition: []
-  action:
-  - type: turn_off
-    device_id: 436abad22dd1e69de0d2d2a51d1e7099
-    entity_id: switch.warmelampe
-    domain: switch
-  - service: scene.turn_on
-    target:
-      entity_id: scene.stillen
-    metadata: {}
+      entity_id:
+      - light.schreibtisch_daniel_2
+      - light.daniel_schreibtisch_mitte
   mode: single
 - id: '1648062274112'
   alias: Wärmelampe manuell aus
@@ -725,7 +692,7 @@
   trigger:
   - platform: device
     type: turned_off
-    device_id: 436abad22dd1e69de0d2d2a51d1e7099
+    device_id: b2f6c6e8419ebaeff38b39d11000ab8e
     entity_id: switch.warmelampe
     domain: switch
   condition: []
@@ -770,6 +737,10 @@
         - action: EMPTIED
           title: Geleert
           uri: shortcuts://run-shortcut?name=D9%20geleert
+  - service: persistent_notification.create
+    data:
+      notification_id: d9_needs_emptying
+      message: 🧹 D9 muss geleert werden.
   mode: single
 - id: '1648668046071'
   alias: D9 geleert
@@ -785,6 +756,9 @@
       datetime: '{{ now() }}'
     target:
       entity_id: input_datetime.d9_last_emptied
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: d9_needs_emptying
   mode: single
 - id: '1649019308494'
   alias: Waschmaschine ausgeräumt
@@ -819,6 +793,11 @@
   - platform: state
     entity_id: binary_sensor.waschmaschine_lauft
     to: 'on'
+  - type: opened
+    platform: device
+    device_id: 413be4282abb9a125d333ecd510f7db5
+    entity_id: binary_sensor.tur_waschmaschine
+    domain: binary_sensor
   condition: []
   action:
   - service: input_boolean.turn_off
@@ -830,15 +809,16 @@
   alias: Wickeln tracking
   description: ''
   trigger:
-  - platform: state
-    entity_id: binary_sensor.warmelampe_effektiv
-    from: 'on'
-    to: 'off'
+  - platform: device
+    type: turned_off
+    device_id: 5021d5f39bca4bd5277fb35408a7b63c
+    entity_id: light.wickeltisch
+    domain: light
   condition: []
   action:
   - service: notify.mobile_app_mobilgeraet
     data:
-      message: Groß oder klein?
+      message: Groß oder klein? {{ now().strftime('%H:%M') }}
       data:
         url: shortcuts://run-shortcut?name=Baby%20Tracker
         actions:
@@ -854,4 +834,287 @@
         - action: MIXED
           title: Gemischt
           uri: shortcuts://run-shortcut?name=Gemischte%20Windel
+  mode: single
+- id: '1650216316961'
+  alias: Klimalicht Schlafzimmer
+  description: 'Wenn der Plug an geht, mach Kommode an mit einem Lichtton, der den
+    Co2-Sensor widerspiegelt.
+
+    Wenn der Plug ausgeht mach das Klimalicht wieder aus.'
+  trigger:
+  - platform: device
+    type: changed_states
+    device_id: 334e8d965b2ce08a09bd2597ae9deca9
+    entity_id: light.on_off_plug_1
+    domain: light
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: device
+        type: is_off
+        device_id: 334e8d965b2ce08a09bd2597ae9deca9
+        entity_id: light.on_off_plug_1
+        domain: light
+      sequence:
+      - type: turn_off
+        device_id: 23463e1aa3532dbb05776cd18c12d83f
+        entity_id: light.schlafzimmer_kommode
+        domain: light
+    - conditions:
+      - condition: device
+        type: is_on
+        device_id: 334e8d965b2ce08a09bd2597ae9deca9
+        entity_id: light.on_off_plug_1
+        domain: light
+      sequence:
+      - service: light.turn_on
+        data:
+          brightness: 2
+          hs_color:
+          - "{% set co2 = states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')\
+            \ %} {% if co2 == 'unavailable' %}\n  360\n{% elif co2 | float < 400 %}\n\
+            \  120\n{% elif co2 | float < 2000 %}\n  {{ ((co2 | float - 400) * -0.075)\
+            \ | round(0) | int + 120 }}\n{% else %}\n  1\n{% endif %}\n"
+          - 100
+        target:
+          entity_id: light.schlafzimmer_kommode
+    default: []
+  mode: single
+- id: '1650702539465'
+  alias: Handle Tag Scan
+  trigger:
+  - platform: event
+    event_type: tag_scanned
+  condition:
+  - condition: template
+    value_template: '{{ trigger.event.data.tag_id in tags }}'
+  action:
+  - variables:
+      media_player_entity_id: media_player.buro
+      media_content_id: '{{ tags[trigger.event.data.tag_id].media_content_id }}'
+      media_content_type: '{{ tags[trigger.event.data.tag_id].media_content_type }}'
+  - service: media_player.play_media
+    target:
+      entity_id: '{{ media_player_entity_id }}'
+    data:
+      media_content_id: '{{ media_content_id }}'
+      media_content_type: '{{ media_content_type }}'
+  - delay: 2
+  mode: single
+  max_exceeded: silent
+  variables:
+    media_players:
+      0e19cd3cf2b311ea88f469a7512c307d: media_player.buro
+    tags:
+      0006274008:
+        media_content_id: spotify:track:5qBRuc4kh5IjTzIuMfoIJ8
+        media_content_type: spotify://track
+- id: '1651698525761'
+  alias: Klimaalarm Schlafzimmer
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.co2_alarm_schlafzimmer
+    to: 'on'
+    id: co2_alarm_on
+  - platform: state
+    entity_id:
+    - binary_sensor.co2_alarm_schlafzimmer
+    to: 'off'
+    id: co2_alarm_off
+  condition: []
+  action:
+  - if:
+    - condition: trigger
+      id: co2_alarm_on
+    then:
+    - service: persistent_notification.create
+      data:
+        notification_id: co2_alarm_bedroom
+        message: 🌬 Bitte im Schlafzimmer lüften.
+    else:
+    - service: persistent_notification.dismiss
+      data:
+        notification_id: co2_alarm_bedroom
+  mode: single
+- id: '1651732579702'
+  alias: Leaf Batteriewarnung
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.leaf_batterie_niedrig
+    to: 'on'
+    id: leaf_battery_low
+  - platform: state
+    entity_id:
+    - binary_sensor.leaf_batterie_niedrig
+    to: 'off'
+  condition: []
+  action:
+  - if:
+    - condition: trigger
+      id: leaf_battery_low
+    then:
+    - service: persistent_notification.create
+      data:
+        notification_id: leaf_battery_low
+        message: 🪫 Bitte Leaf laden.
+    else:
+    - service: persistent_notification.dismiss
+      data:
+        notification_id: leaf_battery_low
+  mode: single
+- id: '1652732792541'
+  alias: Wohnung verrammeln morgens wenn es warm wird
+  description: ''
+  trigger:
+  - platform: time
+    at: '11:00:00'
+    id: execute
+  - platform: time
+    at: 07:00:00
+    id: inform
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.openweathermap_forecast_temperature
+    above: '25'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: sensor.openweathermap_forecast_condition
+      state: sunny
+    - condition: state
+      entity_id: sensor.openweathermap_forecast_condition
+      state: cloudy
+    - condition: state
+      entity_id: sensor.openweathermap_forecast_condition
+      state: partlycloudy
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: inform
+      sequence:
+      - service: persistent_notification.create
+        data:
+          message: ☀️ Heute wird es heiß - um 11 gehen die Rollos runter.
+          notification_id: verrammeln
+    - conditions:
+      - condition: trigger
+        id: execute
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.wohnung_verrammeln
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: verrammeln
+    default: []
+  mode: single
+- id: '1652733360344'
+  alias: Wohnung entrammeln wenn die Sonne untergeht
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: -01:00:00
+  condition: []
+  action:
+  - service: cover.open_cover
+    data: {}
+    target:
+      area_id:
+      - ec3b135bee00b2ab1ebd6626e0a690ca
+      - 29e604877babae723f8a353a2f1bd4f5
+  mode: single
+- id: '1653028213005'
+  alias: Octopi Bild wenn fertig
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.octoprint_print_progress
+    above: '99.99'
+  - platform: numeric_state
+    entity_id: sensor.octoprint_print_progress
+    above: '49.99'
+  condition: []
+  action:
+  - service: script.octocast
+    data: {}
+  - type: turn_on
+    device_id: 8b90320cb352ec3bdb8b1ff8125606f5
+    entity_id: switch.druckerlicht
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      message: Drucker ist {{states('sensor.octoprint_print_progress')|int}}% fertig.
+      data:
+        entity_id: camera.octoprint
+        url: /lovelace-prusa/0
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - type: turn_off
+    device_id: 8b90320cb352ec3bdb8b1ff8125606f5
+    entity_id: switch.druckerlicht
+    domain: switch
+  mode: single
+- id: '1653119725559'
+  alias: Wickelecke Button
+  description: ''
+  trigger:
+  - device_id: d729cd0da25b170f6d49882df1e490e4
+    domain: hue
+    platform: device
+    type: short_release
+    subtype: 1
+    unique_id: dff80a24-ec3f-4c0d-a870-4ed6e8cc6e89
+    id: wickelecke_button_kurz
+  - device_id: d729cd0da25b170f6d49882df1e490e4
+    domain: hue
+    platform: device
+    type: repeat
+    subtype: 1
+    unique_id: dff80a24-ec3f-4c0d-a870-4ed6e8cc6e89
+    id: wickelecke_button_lang
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: wickelecke_button_kurz
+      sequence:
+      - choose:
+        - conditions:
+          - condition: device
+            type: is_off
+            device_id: 5021d5f39bca4bd5277fb35408a7b63c
+            entity_id: light.wickeltisch
+            domain: light
+          sequence:
+          - service: script.wickeln
+            data: {}
+        default:
+        - service: script.wickeln_fertig
+          data: {}
+    - conditions:
+      - condition: trigger
+        id: wickelecke_button_lang
+      sequence:
+      - service: script.wickeln_fertig
+        data: {}
+      - service: scene.turn_on
+        target:
+          entity_id: scene.stillen
+    default: []
   mode: single

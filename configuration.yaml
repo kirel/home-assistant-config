@@ -5,12 +5,12 @@ default_config:
 panel_iframe:
   vscode:
     title: "VisualCode"
-    url: "http://192.168.50.5:8443"
+    url: "https://vscode.lan"
     icon: "mdi:microsoft-visual-studio-code"
     require_admin: true
   portainer:
     title: "Portainer"
-    url: "http://portainer.lan"
+    url: "https://portainer.lan"
     icon: "mdi:docker"
     require_admin: true
   
@@ -24,8 +24,10 @@ http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 127.0.0.1
-    - 192.168.50.87
+    - 192.168.50.5
+    - 172.18.0.0/24
     - 172.19.0.0/24
+    - 172.20.0.0/24
 
 mqtt:
   broker: 192.168.50.5
@@ -34,6 +36,8 @@ mqtt:
 # Text to speech
 tts:
   - platform: google_translate
+    base_url: "http://192.168.50.5:8123"
+ 
 
 group: !include groups.yaml
 automation: !include automations.yaml
@@ -43,14 +47,17 @@ template: !include templates.yaml
 frontend:
   themes: !include_dir_merge_named themes
 
-
-camera:
-  - platform: mjpeg
-    name: OctoPrint
-    still_image_url: http://192.168.50.55/webcam/?action=snapshot
-    mjpeg_url: http://192.168.50.55/webcam/?action=stream
-
-stream:
+#camera:
+  #- platform: mjpeg
+  #  name: OctoPrint
+  #  still_image_url: http://192.168.50.55/webcam/?action=snapshot
+  #  mjpeg_url: http://192.168.50.55/webcam/?action=stream
+  #- platform: generic
+  #  still_image_url: http://192.168.50.80:2323?cmd=getCamshot&password=fire
+  #  name: Fire Tablet
+  #- platform: generic
+  #  still_image_url: http://192.168.50.81:2323?cmd=getCamshot&password=fire
+  #  name: Galaxy Tab A7
 
 wake_on_lan:
 
@@ -80,7 +87,6 @@ vacuum:
     token: !secret xiaomi_token
     name: Dreame D9
     
-
 calendar:
   - platform: todoist
     token: !secret todoist_api_key 
@@ -161,14 +167,6 @@ sensor:
     unique_id: ps5_ext
     command: python3 /config/sensors/ps5.py -q 192.168.50.169
     scan_interval: 10
-  # Aftership
-  - platform: aftership
-    api_key: "074798d7-1644-426d-a6eb-613e15d5f8ae"
-  # Fully Kiosk
-  - platform: mqtt
-    state_topic: "fully/event/+/36325f2a-8626fd56"
-    name: "fully_sensor"
-    value_template: '{{value_json.event}}'
 
 binary_sensor:
   # https://github.com/wicol/ha-config/blob/master/binary_sensors.yaml#L21
@@ -181,13 +179,19 @@ binary_sensor:
 browser_mod:
   prefix: "browser_"
   devices:
-    f283d3cb-d21f61ef:
+    36325f2a-8626fd56:
       name: dashboard
       camera: true
       disable:
-        - light
         - media_player
-  disable: all
+        - light
+    fc203975-d058255d:
+      name: galaxy
+      camera: true
+        - media_player
+        - light
+  disable:
+    - all
 
 homeassistant:
   customize:

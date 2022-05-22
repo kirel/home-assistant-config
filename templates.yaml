@@ -2,31 +2,41 @@
     - name: "Daniel BLE"
       state: >
         {#  
-        Use oura unless not_home -
-        then use venu unless not_home - 
+        Use venu unless not_home - 
         then use iPhone unless not_home -
         then use mobile app
         #}
-        {% if not is_state("sensor.daniels_oura", "not_home") %}
-          {{ states('sensor.daniels_oura') }}
-        {% elif not is_state("sensor.daniels_venu_2", "not_home") %}
-          {{ states('sensor.daniels_venu_2') }}
+
+        {%- set room_names = {
+                  'schlafzimmer' : 'Schlafzimmer',
+                  'b_ro' : 'Büro',
+                  'keller' : 'Keller',
+                  'waschraum' : 'Waschraum',
+                  'wohnzimmer' : 'Wohnzimmer',
+                  'not_home' : 'not_home',
+                  'home' : 'home'
+               }
+        -%}
+        {% if not is_state("sensor.daniels_venu_2", "not_home") %}
+          {{ room_names[states('sensor.daniels_venu_2')] }}
         {% elif not is_state("sensor.daniels_iphone", "not_home") %}
-          {{ states('sensor.daniels_iphone') }}
+          {{ room_names[states('sensor.daniels_iphone')] }}
         {% else %}
-          {{ states('device_tracker.iphone') }}
+          {{ room_names[states('device_tracker.iphone')] }}
         {% endif %}
-- binary_sensor:
-    - name: "Wärmelampe effektiv"
-      unique_id: warmelampe_in_use
+    - name: "Count Lights On"
       state: >
-        {{ states('sensor.warmelampe_power')|float > 1 }}
-      icon: >
-          {% if is_state("binary_sensor.warmelampe_effektiv", "on") %}
-            mdi:fire
-          {% else %}
-            mdi:fire-off
-          {% endif %}
+        {% set domain = 'light' %}
+        {% set state = 'on' %}
+        {% set light_groups = states[domain] | selectattr('attributes.entity_id') | map(attribute='name') | list %}
+        {% set lights_on = states[domain] | selectattr('state','eq', state) | selectattr('attributes.type', '!=', 'browser_mod') | map(attribute='name') | list %}
+        {% set lights_on_cleaned = lights_on | reject('in', light_groups) | list %}
+        {{ lights_on_cleaned | length }}
+      unit_of_measurement: "on"
+    - name: "Daniel's iPhone T"
+      unique_id: daniels_iphone_t
+      state: "{{ states('sensor.daniels_iphone') }}"
+- binary_sensor:
     - name: "Monitor in use"
       unique_id: monitor_in_use
       state: >

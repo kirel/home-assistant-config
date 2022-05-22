@@ -164,10 +164,7 @@ arbeiten:
       brightness_pct: 100
       kelvin: 6000
     target:
-      device_id:
-      - 27a62cb21a147db3247e9a4087504411
-      - bddc70e2a1351503a07796a0ab3bbca1
-      - e2fe48e34790144a198ca1a174e631ec
+      entity_id: light.schreibtisch_daniel_2
   mode: single
   icon: mdi:account-hard-hat
 feierabend:
@@ -177,10 +174,9 @@ feierabend:
     data:
       transition: 3
     target:
-      device_id:
-      - 27a62cb21a147db3247e9a4087504411
-      - bddc70e2a1351503a07796a0ab3bbca1
-      - e2fe48e34790144a198ca1a174e631ec
+      entity_id:
+      - light.schreibtisch_daniel_2
+      - light.daniel_schreibtisch_mitte
   mode: single
   icon: mdi:sofa-single-outline
 raw_shutdown:
@@ -200,10 +196,15 @@ raw_hibernate:
 wickeln:
   alias: Wickeln
   sequence:
-  - type: turn_on
-    device_id: 436abad22dd1e69de0d2d2a51d1e7099
-    entity_id: switch.warmelampe
-    domain: switch
+  - if:
+    - condition: numeric_state
+      entity_id: sensor.netatmo_wohnung_weather_station_schlafzimmer_temperature
+      below: '20'
+    then:
+    - type: turn_on
+      device_id: b2f6c6e8419ebaeff38b39d11000ab8e
+      entity_id: switch.warmelampe
+      domain: switch
   - choose:
     - conditions:
       - condition: time
@@ -228,9 +229,53 @@ wickeln_fertig:
     entity_id: light.innr_rb_250_c_59aa6efe_level_light_color_on_off
     domain: light
   - type: turn_off
-    device_id: 436abad22dd1e69de0d2d2a51d1e7099
+    device_id: b2f6c6e8419ebaeff38b39d11000ab8e
     entity_id: switch.warmelampe
     domain: switch
+  - type: turn_off
+    device_id: 5021d5f39bca4bd5277fb35408a7b63c
+    entity_id: light.wickeltisch
+    domain: light
   mode: single
   icon: mdi:stop
   alias: Wickeln fertig
+home_entertainment_tv:
+  alias: Home Entertainment TV
+  sequence:
+  - service: media_player.turn_on
+    data: {}
+    target:
+      entity_id: media_player.android_tv_192_168_50_17
+  - service: media_player.select_source
+    data:
+      source: Shield
+    target:
+      entity_id: media_player.pioneer_receiver
+  - service: scene.turn_on
+    target:
+      entity_id: scene.home_entertainment
+    metadata: {}
+  mode: single
+  icon: mdi:television
+home_entertainment_ps5:
+  alias: Home Entertainment PS5
+  sequence:
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.ps5
+  - service: media_player.select_source
+    data:
+      source: PS5
+    target:
+      entity_id: media_player.pioneer_receiver
+  - service: media_player.turn_on
+    data: {}
+    target:
+      entity_id: media_player.pioneer_receiver
+  - service: scene.turn_on
+    target:
+      entity_id: scene.home_entertainment
+    metadata: {}
+  mode: single
+  icon: mdi:television
