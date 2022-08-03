@@ -24,18 +24,42 @@
         {% else %}
           {{ room_names[states('device_tracker.iphone')] }}
         {% endif %}
+    - name: "Lights On"
+      state: >
+        {% set domain = 'light' %}
+        {% set state = 'on' %}
+        {% set excludes = expand('light.lichtzahler_ausschluss') | map(attribute='entity_id') | list %}
+        {% set light_groups = states[domain] | selectattr('attributes.entity_id', 'defined') | map(attribute='entity_id') | list %}
+        {% set kiosk = integration_entities('fullykiosk') | list %}
+        {% set browser_mod = states[domain] | selectattr('attributes.type', 'defined') | selectattr('attributes.type', '==', 'browser_mod') | map(attribute='entity_id') %}
+        {% set lights_on = states[domain] | selectattr('state','eq', state) | map(attribute='entity_id') | list %}
+        {% set lights_on_cleaned = lights_on | reject('in', excludes) | reject('in', light_groups) | reject('in', kiosk) | reject('in', browser_mod) | list %}
+        {{ lights_on_cleaned | list | join(', ') }}
     - name: "Count Lights On"
       state: >
         {% set domain = 'light' %}
         {% set state = 'on' %}
-        {% set light_groups = states[domain] | selectattr('attributes.entity_id') | map(attribute='name') | list %}
-        {% set lights_on = states[domain] | selectattr('state','eq', state) | selectattr('attributes.type', '!=', 'browser_mod') | map(attribute='name') | list %}
-        {% set lights_on_cleaned = lights_on | reject('in', light_groups) | list %}
+        {% set excludes = expand('light.lichtzahler_ausschluss') | map(attribute='entity_id') | list %}
+        {% set light_groups = states[domain] | selectattr('attributes.entity_id', 'defined') | map(attribute='entity_id') | list %}
+        {% set kiosk = integration_entities('fullykiosk') | list %}
+        {% set browser_mod = states[domain] | selectattr('attributes.type', 'defined') | selectattr('attributes.type', '==', 'browser_mod') | map(attribute='entity_id') %}
+        {% set lights_on = states[domain] | selectattr('state','eq', state) | map(attribute='entity_id') | list %}
+        {% set lights_on_cleaned = lights_on | reject('in', excludes) | reject('in', light_groups) | reject('in', kiosk) | reject('in', browser_mod) | list %}
         {{ lights_on_cleaned | length }}
       unit_of_measurement: "on"
+    - name: "Offene Fenster"
+      state: >
+        {{ expand('binary_sensor.fenster_und_turen') | selectattr('state', 'eq', 'on') | list | count }}
+      unit_of_measurement: "offen"
     - name: "Daniel's iPhone T"
       unique_id: daniels_iphone_t
       state: "{{ states('sensor.daniels_iphone') }}"
+    - name: "Sonnenwinkel"
+      unit_of_measurement: "°"
+      state: "{{ state_attr('sun.sun', 'azimuth') }}"
+    - name: "Sonnenhöhe"
+      unit_of_measurement: "°"
+      state: "{{ state_attr('sun.sun', 'elevation') }}"
 - binary_sensor:
     - name: "Monitor in use"
       unique_id: monitor_in_use
@@ -69,3 +93,7 @@
           {% else %}
             mdi:delete-outline
           {% endif %}
+    - name: inside warmer than outside
+      unique_id: inside_warmer_than_outside
+      state: >
+        {{ states('sensor.wohnung_temperatur_mittelwert')|float > states('sensor.openweathermap_temperature')|float }}

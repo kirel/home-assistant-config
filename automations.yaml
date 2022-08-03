@@ -55,13 +55,13 @@
   description: ''
   trigger:
   - platform: numeric_state
-    entity_id: sensor.shelly_ht_humidity
+    entity_id: sensor.shelly_h_t_2e4009_humidity
     above: '60'
   - platform: numeric_state
-    entity_id: sensor.netatmo_wohnung_weather_station_humidity
+    entity_id: sensor.netatmo_wohnung_buro_schlafzimmer_humidity
     above: '60'
   - platform: numeric_state
-    entity_id: sensor.netatmo_wohnung_weather_station_schlafzimmer_humidity
+    entity_id: sensor.netatmo_wohnung_buro_humidity
     above: '60'
   condition: []
   action:
@@ -294,12 +294,17 @@
     entity_id: light.hue_filament_bulb_1
     domain: light
     brightness_pct: 1
-  - service: script.klimacheck_buro
-    data: {}
   - service: persistent_notification.create
     data:
       notification_id: office_co2
-      message: 🌬 Bitte im Büro lüften.
+      message: "\U0001F32C Bitte im Büro lüften."
+  - if:
+    - condition: state
+      entity_id: media_player.buro
+      state: 'off'
+    then:
+    - service: script.klimacheck_buro
+      data: {}
   mode: single
 - id: '1643811985877'
   alias: Klimaalarm Büro vorbei
@@ -328,7 +333,7 @@
       notification_id: office_co2
   mode: single
 - id: '1644165727122'
-  alias: Waschmaschine fertig
+  alias: 'Waschmaschine: fertig'
   description: ''
   trigger:
   - platform: state
@@ -349,31 +354,12 @@
         tag: washing_machine_done
   - service: persistent_notification.create
     data:
-      message: 🧺 Die Waschmaschine kann ausgeräumt werden.
+      message: "\U0001F9FA Die Waschmaschine kann ausgeräumt werden."
       notification_id: washing_machine_done
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: washing_machine_running
   mode: single
-- id: '1644472487354'
-  alias: Aqara Cube
-  description: ''
-  use_blueprint:
-    path: brent/zha-aqara-magic-cube-57-actions.yaml
-    input:
-      remote: 695ce80db488d33adc4b4732ee02d360
-      cube_shake:
-      - type: toggle
-        device_id: 356ebc7983e637c821be0a87dc402fe4
-        entity_id: light.hue_filament_bulb_1
-        domain: light
-      cube_flip_1:
-      - service: script.arbeiten
-        data: {}
-      flip_any: true
-      cube_flip_4:
-      - service: script.feierabend
-        data: {}
-      rotate_left: []
-      rotate_right: []
-      one_to_one: []
 - id: '1644477747022'
   alias: Badtür auf
   description: ''
@@ -381,18 +367,21 @@
   - type: opened
     platform: device
     device_id: 9a0a2e676c9e1f01459e7c5d0e14eec8
-    entity_id: binary_sensor.lumi_lumi_sensor_magnet_aq2_65db5b07_on_off
+    entity_id: binary_sensor.bad_balkontuer
     domain: binary_sensor
     for:
       hours: 0
       minutes: 15
       seconds: 0
-  condition: []
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.netatmo_wohnung_weather_station_draussen_temperature
+    below: '18'
   action:
   - service: persistent_notification.create
     data:
       notification_id: bathroom_door
-      message: 🪟 Badtür ist noch offen.
+      message: "\U0001FA9F Badtür ist noch offen."
   - service: notify.mobile_app_mobilgeraet
     data:
       message: Badtür ist noch offen.
@@ -411,7 +400,7 @@
   - type: not_opened
     platform: device
     device_id: 9a0a2e676c9e1f01459e7c5d0e14eec8
-    entity_id: binary_sensor.lumi_lumi_sensor_magnet_aq2_65db5b07_on_off
+    entity_id: binary_sensor.bad_balkontuer
     domain: binary_sensor
   condition: []
   action:
@@ -430,8 +419,8 @@
   trigger:
   - type: vibration
     platform: device
-    device_id: 98a57b5ef9dfc3c013a26af74c3a90cc
-    entity_id: binary_sensor.lumi_lumi_vibration_aq1_ias_zone
+    device_id: 5f176d84b7d9ebdc13f7968e468d5464
+    entity_id: binary_sensor.vibrationssensor_vibration
     domain: binary_sensor
   condition: []
   action:
@@ -513,18 +502,19 @@
     domain: switch
   mode: single
 - id: '1646639581197'
-  alias: Arbeitsbeleuchtung
+  alias: 'Arbeit: Meeting Szene wenn Kamera in Benutzung'
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.motioneye_motion_detected
+    entity_id:
+    - binary_sensor.daniels_billie_macbook_pro_camera_in_use
     to: 'on'
   condition: []
   action:
-  - service: timer.start
+  - service: scene.turn_on
     data: {}
     target:
-      entity_id: timer.office_occupied
+      entity_id: scene.meeting
   mode: single
 - id: '1646640422554'
   alias: Feierabend
@@ -537,29 +527,6 @@
   action:
   - service: script.feierabend
     data: {}
-  mode: single
-- id: '1646652931001'
-  alias: Druckerlicht an wenn Druck fast fertig
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.octoprint_print_time_left
-    below: '30'
-  condition: []
-  action:
-  - type: turn_on
-    device_id: 8b90320cb352ec3bdb8b1ff8125606f5
-    entity_id: switch.druckerlicht
-    domain: switch
-  - delay:
-      hours: 0
-      minutes: 2
-      seconds: 0
-      milliseconds: 0
-  - type: turn_off
-    device_id: 8b90320cb352ec3bdb8b1ff8125606f5
-    entity_id: switch.druckerlicht
-    domain: switch
   mode: single
 - id: '1646825875759'
   alias: Daniel BLE tracking
@@ -574,11 +541,11 @@
   - service: device_tracker.see
     data_template:
       dev_id: daniel_ble
-      location_name: "{% if is_state('sensor.daniel_ble', 'not_home') -%}\n  not_home\n\
-        {%- else -%}\n  home\n{%- endif %}\n"
+      location_name: "{% if is_state('sensor.daniel_ble', 'not_home') -%}\n  not_home\n{%-
+        else -%}\n  home\n{%- endif %}\n"
   mode: single
 - id: '1646852885688'
-  alias: Auf Arbeit
+  alias: 'Arbeit: Auf Arbeit'
   description: ''
   trigger:
   - platform: state
@@ -667,7 +634,7 @@
     domain: switch
   mode: single
 - id: '1647898463182'
-  alias: Arbeitsbeleuchtung aus
+  alias: 'Arbeit: Arbeitsbeleuchtung aus wenn Monitor aus'
   description: ''
   trigger:
   - platform: state
@@ -703,7 +670,7 @@
       entity_id: timer.warmelampe
   mode: single
 - id: '1648655693183'
-  alias: D9 fährt
+  alias: 'Saugen: D9 fährt'
   description: ''
   trigger:
   - platform: state
@@ -717,7 +684,7 @@
       entity_id: input_boolean.vacuum_emptied
   mode: single
 - id: '1648665239768'
-  alias: D9 leeren
+  alias: 'Saugen: D9 leeren'
   description: ''
   trigger:
   - platform: state
@@ -740,10 +707,10 @@
   - service: persistent_notification.create
     data:
       notification_id: d9_needs_emptying
-      message: 🧹 D9 muss geleert werden.
+      message: "\U0001F9F9 D9 muss geleert werden."
   mode: single
 - id: '1648668046071'
-  alias: D9 geleert
+  alias: 'Saugen: D9 geleert'
   description: ''
   trigger:
   - platform: state
@@ -761,7 +728,7 @@
       notification_id: d9_needs_emptying
   mode: single
 - id: '1649019308494'
-  alias: Waschmaschine ausgeräumt
+  alias: 'Waschmaschine: ausgeräumt'
   description: ''
   trigger:
   - platform: state
@@ -780,15 +747,16 @@
       notification_id: washing_machine_done
   mode: single
 - id: '1649020261386'
-  alias: Waschmaschine automatisch ausgeräumt
+  alias: 'Waschmaschine: automatisch ausgeräumt'
   description: ''
   trigger:
   - platform: state
-    entity_id: sensor.daniel_ble
+    entity_id:
+    - sensor.daniel_ble
     to: washroom
     for:
       hours: 0
-      minutes: 0
+      minutes: 1
       seconds: 0
   - platform: state
     entity_id: binary_sensor.waschmaschine_lauft
@@ -872,10 +840,10 @@
         data:
           brightness: 2
           hs_color:
-          - "{% set co2 = states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')\
-            \ %} {% if co2 == 'unavailable' %}\n  360\n{% elif co2 | float < 400 %}\n\
-            \  120\n{% elif co2 | float < 2000 %}\n  {{ ((co2 | float - 400) * -0.075)\
-            \ | round(0) | int + 120 }}\n{% else %}\n  1\n{% endif %}\n"
+          - "{% set co2 = states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')
+            %} {% if co2 == 'unavailable' %}\n  360\n{% elif co2 | float < 400 %}\n
+            \ 120\n{% elif co2 | float < 2000 %}\n  {{ ((co2 | float - 400) * -0.075)
+            | round(0) | int + 120 }}\n{% else %}\n  1\n{% endif %}\n"
           - 100
         target:
           entity_id: light.schlafzimmer_kommode
@@ -933,7 +901,7 @@
     - service: persistent_notification.create
       data:
         notification_id: co2_alarm_bedroom
-        message: 🌬 Bitte im Schlafzimmer lüften.
+        message: "\U0001F32C Bitte im Schlafzimmer lüften."
     else:
     - service: persistent_notification.dismiss
       data:
@@ -961,22 +929,33 @@
     - service: persistent_notification.create
       data:
         notification_id: leaf_battery_low
-        message: 🪫 Bitte Leaf laden.
+        message: "\U0001FAAB Bitte Leaf laden."
     else:
     - service: persistent_notification.dismiss
       data:
         notification_id: leaf_battery_low
   mode: single
 - id: '1652732792541'
-  alias: Wohnung verrammeln morgens wenn es warm wird
-  description: ''
+  alias: 'Rollos: Wohnung verrammeln Benachrichtigung'
+  description: 'Wenn es über 25 Grad wird und der Forecast sunny oder partlycloudy
+    ist: Persistent Notification zum Wohnung verrammeln
+
+    Wenn die Rollos <51% sind oder es nach 18 Uhr ist wird sie dismissed. '
   trigger:
-  - platform: time
-    at: '11:00:00'
-    id: execute
-  - platform: time
-    at: 07:00:00
-    id: inform
+  - platform: numeric_state
+    entity_id: sensor.openweathermap_forecast_temperature
+    above: '25'
+  - platform: state
+    entity_id:
+    - sensor.openweathermap_forecast_condition
+    to: sunny
+  - platform: state
+    entity_id:
+    - sensor.openweathermap_forecast_condition
+    to: partlycloudy
+  - platform: sun
+    event: sunrise
+    offset: 0
   condition:
   - condition: numeric_state
     entity_id: sensor.openweathermap_forecast_temperature
@@ -988,47 +967,24 @@
       state: sunny
     - condition: state
       entity_id: sensor.openweathermap_forecast_condition
-      state: cloudy
-    - condition: state
-      entity_id: sensor.openweathermap_forecast_condition
       state: partlycloudy
+  - condition: sun
+    before: sunset
+    after: sunrise
+    before_offset: '-1:00:00'
+  - condition: numeric_state
+    entity_id: cover.fenster_zum_verrammeln
+    attribute: current_position
+    above: '70'
   action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: inform
-      sequence:
-      - service: persistent_notification.create
-        data:
-          message: ☀️ Heute wird es heiß - um 11 gehen die Rollos runter.
-          notification_id: verrammeln
-    - conditions:
-      - condition: trigger
-        id: execute
-      sequence:
-      - service: scene.turn_on
-        target:
-          entity_id: scene.wohnung_verrammeln
-      - service: persistent_notification.dismiss
-        data:
-          notification_id: verrammeln
-    default: []
-  mode: single
-- id: '1652733360344'
-  alias: Wohnung entrammeln wenn die Sonne untergeht
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: -01:00:00
-  condition: []
-  action:
-  - service: cover.open_cover
+  - service: persistent_notification.create
+    data:
+      notification_id: verrammeln
+      message: ☀️ Es wird warm. Wohnung verrammeln?
+  - service: input_boolean.turn_on
     data: {}
     target:
-      area_id:
-      - ec3b135bee00b2ab1ebd6626e0a690ca
-      - 29e604877babae723f8a353a2f1bd4f5
+      entity_id: input_boolean.wohnung_verrammeln_anbieten
   mode: single
 - id: '1653028213005'
   alias: Octopi Bild wenn fertig
@@ -1117,4 +1073,585 @@
         target:
           entity_id: scene.stillen
     default: []
+  mode: single
+- id: '1653478934255'
+  alias: Play Music tag
+  description: ''
+  use_blueprint:
+    path: luka6000/PlayMusicTag.yaml
+    input:
+      reader_id: 480a00c603cd897ec288e1c39cd684d9
+      player: media_player.buro
+- id: '1653691012147'
+  alias: Rollos nach Sonnenstand
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.sonne_trifft_sudfenster
+    - binary_sensor.sonne_trifft_westfenster
+    - binary_sensor.sonne_trifft_schlafzimmerfenster
+  - platform: numeric_state
+    entity_id: sensor.openweathermap_cloud_coverage
+    below: input_number.rollos_nach_sonnenstand_bedeckungsgrad
+  - platform: numeric_state
+    entity_id: sensor.openweathermap_temperature
+    above: input_number.rollos_nach_sonnenstand_temperatur
+  - platform: state
+    entity_id:
+    - input_boolean.rollos_nach_sonnenstand
+  - platform: time
+    at: '11:00:00'
+  condition:
+  - condition: state
+    entity_id: input_boolean.rollos_nach_sonnenstand
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.schlafmodus
+    state: 'off'
+  - condition: sun
+    after: sunrise
+    before: sunset
+  - condition: time
+    after: '10:00:00'
+    before: '19:00:00'
+  action:
+  - if:
+    - condition: state
+      entity_id: binary_sensor.sonne_trifft_schlafzimmerfenster
+      state: 'on'
+    - condition: numeric_state
+      entity_id: sensor.openweathermap_cloud_coverage
+      below: input_number.rollos_nach_sonnenstand_bedeckungsgrad
+    - condition: numeric_state
+      entity_id: sensor.openweathermap_temperature
+      above: input_number.rollos_nach_sonnenstand_temperatur
+    then:
+    - device_id: d4fe64964b90b59d38287dd07b740305
+      domain: cover
+      entity_id: cover.schlafzimmer_rollo_balkon
+      type: set_position
+      position: 50
+    else:
+    - device_id: d4fe64964b90b59d38287dd07b740305
+      domain: cover
+      entity_id: cover.schlafzimmer_rollo_balkon
+      type: set_position
+      position: 100
+  - if:
+    - condition: state
+      entity_id: binary_sensor.sonne_trifft_sudfenster
+      state: 'on'
+    - condition: numeric_state
+      entity_id: sensor.openweathermap_cloud_coverage
+      below: input_number.rollos_nach_sonnenstand_bedeckungsgrad
+    - condition: numeric_state
+      entity_id: sensor.openweathermap_temperature
+      above: input_number.rollos_nach_sonnenstand_temperatur
+    then:
+    - service: cover.set_cover_position
+      data:
+        position: 50
+      target:
+        entity_id: cover.fenster_suden
+    else:
+    - service: cover.set_cover_position
+      data:
+        position: 100
+      target:
+        entity_id: cover.fenster_suden
+  - if:
+    - condition: state
+      entity_id: binary_sensor.sonne_trifft_westfenster
+      state: 'on'
+    - condition: numeric_state
+      entity_id: sensor.openweathermap_cloud_coverage
+      below: input_number.rollos_nach_sonnenstand_bedeckungsgrad
+    - condition: numeric_state
+      entity_id: sensor.openweathermap_temperature
+      above: input_number.rollos_nach_sonnenstand_temperatur
+    then:
+    - service: cover.set_cover_position
+      data:
+        position: 50
+      target:
+        entity_id: cover.fenster_westen
+    else:
+    - service: cover.set_cover_position
+      data:
+        position: 100
+      target:
+        entity_id: cover.fenster_westen
+  mode: restart
+- id: '1653859948513'
+  alias: Meeting-Licht bei Event mit Meeting
+  description: ''
+  trigger:
+  - platform: calendar
+    event: start
+    entity_id: calendar.daniel_sabine
+  condition:
+  - condition: template
+    value_template: '{{ "zoom" in trigger.calendar_event.location }}'
+  action:
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      message: '{{trigger.calendar_event.summary}}'
+  mode: single
+- id: '1653912757058'
+  alias: 'Lüften: Rollo auf Lüften wenn geöffnet'
+  description: Schließt das Rollo nicht ganz wenn das Fenster offen ist und öffnet
+    es leicht wenn das Fenster geöffnet wird.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.wohnzimmer_balkontursensor_links_contact
+    - binary_sensor.wohnzimmer_fenstersensor_contact
+    - binary_sensor.bad_balkontursensor_contact
+    - binary_sensor.kuche_fenstersensor_links_contact
+    - binary_sensor.kuche_fenstersensor_rechts_contact
+    - binary_sensor.buro_fenstersensor_contact
+    - binary_sensor.buro_balkontursensor_contact
+    - binary_sensor.schlafzimmer_balkontursensor_contact
+    - binary_sensor.schlafzimmer_fenstersensor_links_contact
+    - binary_sensor.schlafzimmer_fenstersensor_rechts_contact
+    id: window
+  - platform: state
+    entity_id:
+    - cover.wohnzimmer_rollo_balkon_links
+    - cover.wohnzimmer_rollo
+    - cover.shelly_bad
+    - cover.kuche_rollo_links
+    - cover.kuche_rollo_rechts
+    - cover.buro_rollo
+    - cover.buro_rollo_balkon
+    - cover.schlafzimmer_rollo_balkon
+    - cover.schlafzimmer_rollo_links
+    - cover.schlafzimmer_rollo_rechts
+    to: closed
+    id: cover
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: window
+      sequence:
+      - if:
+        - condition: template
+          value_template: '{{ state_attr(mapping[trigger.entity_id], "current_position")
+            <= posmapping[mapping[trigger.entity_id]] }}
+
+            '
+        then:
+        - service: cover.set_cover_position
+          data: '{ "position": {{ posmapping[mapping[trigger.entity_id]] if is_state(trigger.entity_id,
+            ''on'') else 0 }} }
+
+            '
+          target:
+            entity_id: '{{ mapping[trigger.entity_id] }}
+
+              '
+    - conditions:
+      - condition: trigger
+        id: cover
+      sequence:
+      - if:
+        - condition: template
+          value_template: '{{ is_state(mapping[trigger.entity_id], ''on'') }}
+
+            '
+        then:
+        - service: cover.set_cover_position
+          data: '{ "position": {{ posmapping[trigger.entity_id] }} }
+
+            '
+          target:
+            entity_id: '{{ trigger.entity_id }}
+
+              '
+    default: []
+  variables:
+    mapping:
+      binary_sensor.wohnzimmer_balkontursensor_links_contact: cover.wohnzimmer_rollo_balkon_links
+      binary_sensor.wohnzimmer_fenstersensor_contact: cover.wohnzimmer_rollo
+      binary_sensor.bad_balkontursensor_contact: cover.shelly_bad
+      binary_sensor.kuche_fenstersensor_links_contact: cover.kuche_rollo_links
+      binary_sensor.kuche_fenstersensor_rechts_contact: cover.kuche_rollo_rechts
+      binary_sensor.buro_fenstersensor_contact: cover.buro_rollo
+      binary_sensor.buro_balkontursensor_contact: cover.buro_rollo_balkon
+      binary_sensor.schlafzimmer_balkontursensor_contact: cover.schlafzimmer_rollo_balkon
+      binary_sensor.schlafzimmer_fenstersensor_links_contact: cover.schlafzimmer_rollo_links
+      binary_sensor.schlafzimmer_fenstersensor_rechts_contact: cover.schlafzimmer_rollo_rechts
+      cover.wohnzimmer_rollo_balkon_links: binary_sensor.wohnzimmer_balkontursensor_links_contact
+      cover.wohnzimmer_rollo: binary_sensor.wohnzimmer_fenstersensor_contact
+      cover.shelly_bad: binary_sensor.bad_balkontursensor_contact
+      cover.kuche_rollo_links: binary_sensor.kuche_fenstersensor_links_contact
+      cover.kuche_rollo_rechts: binary_sensor.kuche_fenstersensor_rechts_contact
+      cover.buro_rollo: binary_sensor.buro_fenstersensor_contact
+      cover.buro_rollo_balkon: binary_sensor.buro_balkontursensor_contact
+      cover.schlafzimmer_rollo_balkon: binary_sensor.schlafzimmer_balkontursensor_contact
+      cover.schlafzimmer_rollo_links: binary_sensor.schlafzimmer_fenstersensor_links_contact
+      cover.schlafzimmer_rollo_rechts: binary_sensor.schlafzimmer_fenstersensor_rechts_contact
+    posmapping:
+      cover.wohnzimmer_rollo_balkon_links: 15
+      cover.wohnzimmer_rollo: 15
+      cover.shelly_bad: 15
+      cover.kuche_rollo_links: 15
+      cover.kuche_rollo_rechts: 15
+      cover.buro_rollo: 15
+      cover.buro_rollo_balkon: 15
+      cover.schlafzimmer_rollo_balkon: 15
+      cover.schlafzimmer_rollo_links: 15
+      cover.schlafzimmer_rollo_rechts: 15
+  mode: single
+- id: '1654271432288'
+  alias: Aqara Magic Cube (Z2M)
+  description: ''
+  use_blueprint:
+    path: luckypoppy/z2m-xiaomi-cube-controller.yaml
+    input:
+      remote: sensor.wurfel_action
+      shake:
+      - service: script.feierabend
+        data: {}
+- id: '1654408376532'
+  alias: Küche Plug bei Bewegung
+  description: ''
+  use_blueprint:
+    path: freakshock88/motion_illuminance_activated_entity.yaml
+    input:
+      motion_sensor: binary_sensor.0x54ef44100043e010_occupancy
+      target_entity: light.on_off_plug_1_2
+      illuminance_sensor: sensor.0x54ef44100043e010_illuminance_lux
+      no_motion_wait: input_number.bewegungsmelder_wartezeit
+      illuminance_cutoff: input_number.bewegungsmelder_helligkeit
+      time_limit_after: input_datetime.kuche_bewegungsmelder_ab_uhrzeit
+      time_limit_before: input_datetime.kuche_bewegungsmelder_bis_uhrzeit
+- id: '1654516254285'
+  alias: Low battery level detection & notification for all battery sensors
+  description: ''
+  use_blueprint:
+    path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
+    input:
+      exclude:
+        entity_id:
+        - sensor.daniels_ipad_2_battery_level
+        - sensor.leaf_battery_level
+        - sensor.mobilgeraet_battery_level
+        - sensor.raw_battery_level
+        - sensor.raw_battery_remaining
+      threshold: 15
+      time: '18:00:00'
+      actions:
+      - service: persistent_notification.create
+        data:
+          notification_id: low_battery_warning
+          message: "\U0001FAAB bei: {{ sensors }}"
+- id: '1654989864612'
+  alias: Rollos manuell
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - cover.shelly_bad
+    - cover.schlafzimmer_rollo_balkon
+    - cover.schlafzimmer_rollo_links
+    - cover.schlafzimmer_rollo_rechts
+    - cover.buro_rollo
+    - cover.buro_rollo_balkon
+    - cover.kuche_rollo_rechts
+    - cover.kuche_rollo_links
+    - cover.wohnzimmer_rollo
+    - cover.wohnzimmer_rollo_balkon_links
+    - cover.wohnzimmer_rollo_balkon_rechts
+    id: cover_moved
+  - platform: event
+    event_type: timer.finished
+    id: timer_finished
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: cover_moved
+      sequence:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: '{{trigger.entity_id | replace(''cover'', ''input_boolean'')
+            ~ ''_manual''}}'
+      - service: timer.start
+        data:
+          duration: '2:00:00'
+        target:
+          entity_id: '{{trigger.entity_id | replace(''cover'', ''timer'') ~ ''_manual''}}'
+      - service: system_log.write
+        data:
+          level: error
+          message: '{{this.context|to_json}}'
+    - conditions:
+      - condition: trigger
+        id: timer_finished
+      - condition: template
+        value_template: '{{ states(trigger.event.data.entity_id | replace(''timer'',
+          ''input_boolean'')) != ''unknown'' }}'
+      sequence:
+      - service: timer.cancel
+        target:
+          entity_id: '{{ trigger.event.data.entity_id | replace(''timer'', ''input_boolean'')
+            }}'
+      - service: input_boolean.turn_off
+        target:
+          entity_id: '{{trigger.event.data.entity_id | replace(''timer'', ''input_boolean'')
+            }}'
+    default: []
+  mode: single
+- id: '1655236362519'
+  alias: 'Rollos: Wohnung verrammeln Benachrichtigung löschen'
+  description: 'Wenn es über 25 Grad wird und der Forecast sunny oder partlycloudy
+    ist: Persistent Notification zum Wohnung verrammeln
+
+    Wenn die Rollos <51% sind oder es nach 18 Uhr ist wird sie dismissed. '
+  trigger:
+  - platform: numeric_state
+    entity_id: cover.fenster_zum_verrammeln
+    attribute: current_position
+    below: '71'
+  - platform: sun
+    event: sunset
+    offset: '-1:00:00'
+  condition: []
+  action:
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: verrammeln
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.wohnung_verrammeln_anbieten
+  mode: single
+- id: '1655363360652'
+  alias: 'Arbeiten: Büro Rollo runter wenn es blendet'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.daniels_monitor_in_benutzung
+    to: 'on'
+  - platform: numeric_state
+    entity_id: sun.sun
+    above: '230'
+    attribute: azimuth
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: '10'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.daniels_monitor_in_benutzung
+    state: 'on'
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: azimuth
+    above: '220'
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: '10'
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.buro_rollo_arbeit
+    metadata: {}
+  mode: single
+- id: '1657009430568'
+  alias: 'Lüften im Sommer: wenn die Temperatur draußen unter die Temperatur drinnen
+    sinkt'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.inside_warmer_than_outside
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.wohnung_temperatur_mittelwert
+    above: '24'
+  - condition: state
+    entity_id: binary_sensor.fenster_und_turen
+    state: 'off'
+  action:
+  - service: persistent_notification.create
+    data:
+      notification_id: ventilate
+      message: "\U0001F321 Draußen ist es jetzt kühler als drinnen. Jetzt lüften!
+        \U0001F32C"
+  - if:
+    - condition: state
+      entity_id: person.daniel_kirsch
+      state: home
+    then:
+    - service: notify.mobile_app_mobilgeraet
+      data:
+        message: "\U0001F321 Draußen ist es jetzt kühler als drinnen. Jetzt lüften!
+          \U0001F32C"
+  mode: single
+- id: '1657009645869'
+  alias: 'Lüften im Sommer: Gelüftet'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.bad_balkontuer
+    - binary_sensor.wohnzimmer_balkontuer
+    - binary_sensor.buro_fenstersensor_contact
+    - binary_sensor.kuche_fenstersensor_links_contact
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - platform: state
+    entity_id:
+    - binary_sensor.inside_warmer_than_outside
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition: []
+  action:
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: ventilate
+  mode: single
+- id: '1657009841315'
+  alias: 'Lüften im Sommer: Fenster zu wenn die Temperatur draußen über die Temperatur
+    drinnen steigt'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.inside_warmer_than_outside
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.wohnung_temperatur_mittelwert
+    above: '24'
+  - condition: state
+    entity_id: binary_sensor.fenster_und_turen
+    state: 'on'
+  action:
+  - service: persistent_notification.create
+    data:
+      notification_id: stop_ventilate
+      message: "\U0001F321 Draußen ist es jetzt wärmer als drinnen. Fenster zu! \U0001FA9F"
+  - if:
+    - condition: state
+      entity_id: person.daniel_kirsch
+      state: home
+    then:
+    - service: notify.mobile_app_mobilgeraet
+      data:
+        message: "\U0001F321 Draußen ist es jetzt wärmer als drinnen. Fenster zu!
+          \U0001FA9F"
+  mode: single
+- id: '1657009912444'
+  alias: 'Lüften im Sommer: Fenster geschlossen'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.fenster_und_turen
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - platform: state
+    entity_id:
+    - binary_sensor.inside_warmer_than_outside
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition: []
+  action:
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: stop_ventilate
+  mode: single
+- id: '1657286626072'
+  alias: 'Arbeit: Meetinglich aus wenn Kamera aus'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.daniels_billie_macbook_pro_camera_in_use
+    to: 'off'
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.daniel_schreibtisch_mitte
+  mode: single
+- id: '1658240820941'
+  alias: 'Waschmaschine: läuft'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.waschmaschine_lauft
+    to: 'on'
+    from: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  condition: []
+  action:
+  - service: persistent_notification.create
+    data:
+      message: "\U0001F9FC Die Waschmaschine läuft."
+      notification_id: washing_machine_running
+  - service: notify.mobile_app_mobilgeraet
+    data:
+      data:
+        url: /lovelace-dash/haushalt
+  mode: single
+- id: '1658671139948'
+  alias: 'Saugen: Beim Verlassen der Wohnung'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: zone.home
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    below: '1'
+  condition:
+  - condition: state
+    entity_id: input_boolean.spater_saugen
+    state: 'on'
+  action:
+  - service: vacuum.start
+    data: {}
+    target:
+      entity_id: vacuum.dreame_d9
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.spater_saugen
   mode: single

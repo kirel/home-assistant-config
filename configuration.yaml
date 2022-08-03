@@ -77,10 +77,6 @@ switch:
         command_on: python3 /config/sensors/ps5.py -u 1012966755 -w 192.168.50.169 # TODO credential in secret?
         icon_template: "mdi:sony-playstation"
 
-spotify:
-  client_id: !secret spotify_client_id
-  client_secret: !secret spotify_client_secret
-
 vacuum:
   - platform: xiaomi_vacuum
     host: 192.168.50.35
@@ -90,10 +86,6 @@ vacuum:
 calendar:
   - platform: todoist
     token: !secret todoist_api_key 
-
-google:
-  client_id: !secret google_client_id
-  client_secret: !secret google_client_secret
 
 media_player:
   - platform: onkyo
@@ -167,6 +159,28 @@ sensor:
     unique_id: ps5_ext
     command: python3 /config/sensors/ps5.py -q 192.168.50.169
     scan_interval: 10
+  # System monitor
+  - platform: systemmonitor
+    resources:
+      - type: processor_use
+      - type: processor_temperature
+      - type: load_1m       
+      - type: load_5m       
+      - type: load_15m  
+      - type: memory_free
+      - type: memory_use
+      - type: memory_use_percent
+      - type: disk_use
+        arg: /
+      - type: disk_free
+        arg: /
+      - type: disk_use_percent
+        arg: /
+      - type: network_in
+        arg: eth0
+      - type: network_out
+        arg: eth0
+      - type: last_boot
 
 binary_sensor:
   # https://github.com/wicol/ha-config/blob/master/binary_sensors.yaml#L21
@@ -176,24 +190,91 @@ binary_sensor:
     command: python3 /config/sensors/ps5.py -b -q 192.168.50.169
     scan_interval: 10
 
+input_boolean:
+  shelly_bad_manual:
+    name: Bad Rollo Manuell
+  buro_rollo_balkon_manual:
+    name: Büro Rollo Balkon Manuell
+  buro_rollo_manual:
+    name: Büro Rollo Manuell
+  kuche_rollo_links_manual:
+    name: Küche Rollo links Manuell
+  kuche_rollo_rechts_manual:
+    name: Küche Rollo rechts Manuell
+  schlafzimmer_rollo_balkon_manual:
+    name: Schlafzimmer Rollo Balkon Manuell
+  schlafzimmer_rollo_links_manual:
+    name: Schlafzimmer Rollo links Manuell
+  schlafzimmer_rollo_rechts_manual:
+    name: Schlafzimmer Rollo rechts Manuell
+  wohnzimmer_rollo_manual:
+    name: Wohnzimmer Rollo Manuell
+  wohnzimmer_rollo_balkon_links_manual:
+    name: Wohnzimmer Rollo Balkon links Manuell
+  wohnzimmer_rollo_balkon_rechts_manual:
+    name: Wohnzimmer Rollo Balkon rechts Manuell
+
+timer:
+  shelly_bad_manual:
+    name: Bad Rollo Manuell
+    restore: true
+  buro_rollo_balkon_manual:
+    name: Büro Rollo Balkon Manuell
+    restore: true
+  buro_rollo_manual:
+    name: Büro Rollo Manuell
+    restore: true
+  kuche_rollo_links_manual:
+    name: Küche Rollo links Manuell
+    restore: true
+  kuche_rollo_rechts_manual:
+    name: Küche Rollo rechts Manuell
+    restore: true
+  schlafzimmer_rollo_balkon_manual:
+    name: Schlafzimmer Rollo Balkon Manuell
+    restore: true
+  schlafzimmer_rollo_links_manual:
+    name: Schlafzimmer Rollo links Manuell
+    restore: true
+  schlafzimmer_rollo_rechts_manual:
+    name: Schlafzimmer Rollo rechts Manuell
+    restore: true
+  wohnzimmer_rollo_manual:
+    name: Wohnzimmer Rollo Manuell
+    restore: true
+  wohnzimmer_rollo_balkon_links_manual:
+    name: Wohnzimmer Rollo Balkon links Manuell
+    restore: true
+  wohnzimmer_rollo_balkon_rechts_manual:
+    name: Wohnzimmer Rollo Balkon rechts Manuell
+    restore: true
+
+
 browser_mod:
   prefix: "browser_"
   devices:
     36325f2a-8626fd56:
       name: dashboard
-      camera: true
+      camera: false
       disable:
         - media_player
         - light
     fc203975-d058255d:
       name: galaxy
-      camera: true
+      camera: false
+      disable:
         - media_player
         - light
   disable:
     - all
 
 homeassistant:
+  auth_providers:
+    - type: homeassistant
+    - type: trusted_networks
+      trusted_networks:
+        - 127.0.0.1
+        - 192.168.50.0/24
   customize:
     device_tracker.daniel_ble:
       icon: mdi:bluetooth

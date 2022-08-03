@@ -34,13 +34,16 @@ alle_lichter_aus:
       - efdc37a3c400d1f5c61eff6aaf14282d
       - cf9a68fe88bae87e9a7425691f86f38c
       - e20a5307dfa7dc9c341c7e2a101722fe
+    data: {}
   - service: switch.turn_off
     target:
       entity_id:
       - switch.kuche_licht
       - switch.schlafzimmer_licht
+    data: {}
   mode: single
   alias: Alle Lichter aus
+  icon: mdi:lightbulb-group-off
 klimacheck_buro:
   alias: Klimacheck Büro
   sequence:
@@ -202,7 +205,7 @@ wickeln:
       below: '20'
     then:
     - type: turn_on
-      device_id: b2f6c6e8419ebaeff38b39d11000ab8e
+      device_id: a185454614370f67aee80a6327bcbed4
       entity_id: switch.warmelampe
       domain: switch
   - choose:
@@ -225,11 +228,11 @@ wickeln:
 wickeln_fertig:
   sequence:
   - type: turn_off
-    device_id: 70709a5db74945ae4ab139f622bc1057
-    entity_id: light.innr_rb_250_c_59aa6efe_level_light_color_on_off
+    device_id: 23463e1aa3532dbb05776cd18c12d83f
+    entity_id: light.schlafzimmer_kommode
     domain: light
   - type: turn_off
-    device_id: b2f6c6e8419ebaeff38b39d11000ab8e
+    device_id: a185454614370f67aee80a6327bcbed4
     entity_id: switch.warmelampe
     domain: switch
   - type: turn_off
@@ -273,9 +276,95 @@ home_entertainment_ps5:
     data: {}
     target:
       entity_id: media_player.pioneer_receiver
+  - service: media_player.turn_on
+    data: {}
+    target:
+      entity_id: media_player.beamer
   - service: scene.turn_on
     target:
       entity_id: scene.home_entertainment
     metadata: {}
   mode: single
-  icon: mdi:television
+  icon: mdi:sony-playstation
+home_entertainment_aus:
+  alias: Home Entertainment aus
+  sequence:
+  - service: media_player.turn_off
+    data: {}
+    target:
+      entity_id:
+      - media_player.pioneer_receiver
+      - media_player.beamer
+      - media_player.wohnzimmer_xbox
+      - media_player.android_tv_192_168_50_17
+  - service: homeassistant.turn_off
+    data: {}
+    target:
+      entity_id: switch.ps5
+  - service: cover.open_cover
+    data: {}
+    target:
+      area_id:
+      - c03d1a02f0bcd1b62fb6f8e50ef55e04
+      - ec3b135bee00b2ab1ebd6626e0a690ca
+  mode: single
+saugen_kuche:
+  alias: 'Saugen: Küche'
+  sequence:
+  - service: xiaomi_vacuum.vacuum_clean_room_by_id
+    data:
+      rooms: C
+      clean_mode: 2
+      repeats: 1
+    target:
+      entity_id: vacuum.dreame_d9
+  mode: single
+  icon: mdi:table-furniture
+saugen_buro:
+  alias: 'Saugen: Büro'
+  sequence:
+  - service: xiaomi_vacuum.vacuum_clean_room_by_id
+    data:
+      rooms: B
+      clean_mode: 2
+      repeats: 1
+    target:
+      entity_id: vacuum.dreame_d9
+  mode: single
+  icon: mdi:desk
+saugen_flur:
+  alias: 'Saugen: Flur'
+  sequence:
+  - service: xiaomi_vacuum.vacuum_clean_room_by_id
+    data:
+      rooms: D
+      clean_mode: 2
+      repeats: 1
+    target:
+      entity_id: vacuum.dreame_d9
+  mode: single
+  icon: mdi:shoe-print
+saugen_bad:
+  alias: 'Saugen: Bad'
+  sequence:
+  - service: xiaomi_vacuum.vacuum_clean_room_by_id
+    data:
+      clean_mode: 2
+      repeats: 1
+      rooms: E
+    target:
+      entity_id: vacuum.dreame_d9
+  mode: single
+  icon: mdi:paper-roll
+saugen_wohnzimmer:
+  alias: 'Saugen: Wohnzimmer'
+  sequence:
+  - service: xiaomi_vacuum.vacuum_clean_room_by_id
+    data:
+      clean_mode: 2
+      repeats: 1
+      rooms: F
+    target:
+      entity_id: vacuum.dreame_d9
+  mode: single
+  icon: mdi:sofa
