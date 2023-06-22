@@ -61,36 +61,7 @@
       dynamics: none
       friendly_name: Plug Schlafzimmer
       supported_features: 0
-      color_mode: onoff
-      state: 'on'
-    light.lampi:
-      min_mireds: 153
-      max_mireds: 500
-      effect_list:
-      - None
-      - candle
-      - fire
-      supported_color_modes:
-      - color_temp
-      - xy
-      mode: normal
-      dynamics: none
-      friendly_name: Lampi
-      supported_features: 44
-      color_mode: xy
-      brightness: 48
-      hs_color:
-      - 27.753
-      - 89.02
-      rgb_color:
-      - 255
-      - 133
-      - 28
-      xy_color:
-      - 0.6015
-      - 0.3759
-      effect: None
-      state: 'on'
+      state: 'off'
     switch.schlafzimmer_licht:
       friendly_name: Schlafzimmer Licht
       state: 'off'
@@ -107,65 +78,12 @@
       supported_color_modes:
       - color_temp
       - xy
-      linkquality: 80
-      friendly_name: Schlafzimmer Kommode
+      color:
+        x: 0.5492
+        y: 0.4082
+      linkquality: 94
+      friendly_name: Kommode
       supported_features: 63
-      color_mode: color_temp
-      brightness: 18
-      color_temp: 555
-      hs_color:
-      - 29.751
-      - 100
-      rgb_color:
-      - 255
-      - 126
-      - 0
-      xy_color:
-      - 0.614
-      - 0.373
-      state: 'on'
-  icon: mdi:baby-bottle
-- id: '1649017620156'
-  name: Schlafzimmer Nachtlicht
-  entities:
-    light.lampi:
-      min_mireds: 153
-      max_mireds: 500
-      effect_list:
-      - None
-      - candle
-      - fire
-      supported_color_modes:
-      - color_temp
-      - xy
-      mode: normal
-      dynamics: none
-      friendly_name: Lampi
-      supported_features: 44
-      state: 'off'
-    light.on_off_plug_1:
-      supported_color_modes: []
-      mode: normal
-      dynamics: none
-      friendly_name: Plug Schlafzimmer
-      supported_features: 0
-      state: 'off'
-    switch.schlafzimmer_licht:
-      friendly_name: Schlafzimmer Licht
-      state: 'off'
-    light.schlafzimmer_kommode:
-      min_mireds: 153
-      max_mireds: 555
-      effect_list:
-      - blink
-      - breathe
-      - okay
-      - channel_change
-      - finish_effect
-      - stop_effect
-      supported_color_modes:
-      - color_temp
-      - xy
       color_mode: color_temp
       brightness: 3
       color_temp: 555
@@ -179,29 +97,127 @@
       xy_color:
       - 0.614
       - 0.373
-      color:
-        x: 0.5492
-        y: 0.4082
-      linkquality: 109
-      friendly_name: Schlafzimmer Kommode
-      supported_features: 63
       state: 'on'
-  icon: mdi:weather-night
-- id: '1651699265494'
-  name: Home Entertainment
-  entities:
-    light.couch:
+    light.hue_go_1:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
       - None
       - candle
+      - fire
       supported_color_modes:
-      - brightness
+      - color_temp
+      - xy
       mode: normal
       dynamics: none
-      friendly_name: Couch
+      friendly_name: Lampi
       supported_features: 44
+      color_mode: xy
+      brightness: 22
+      hs_color:
+      - 30.119
+      - 99.216
+      rgb_color:
+      - 255
+      - 129
+      - 2
+      xy_color:
+      - 0.612
+      - 0.374
+      effect: None
+      state: 'on'
+  icon: mdi:baby-bottle
+  metadata: {}
+- id: '1649017620156'
+  name: Schlafzimmer Nachtlicht
+  entities:
+    light.on_off_plug_1:
+      supported_color_modes: []
+      mode: normal
+      dynamics: none
+      friendly_name: Plug Schlafzimmer
+      supported_features: 0
       state: 'off'
+    switch.schlafzimmer_licht:
+      friendly_name: Schlafzimmer Licht
+      state: 'off'
+    light.schlafzimmer_kommode:
+      min_color_temp_kelvin: 1801
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 555
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color:
+        x: 0.5492
+        y: 0.4082
+      level_config:
+        on_level: previous
+      linkquality: 98
+      power_on_behavior: previous
+      friendly_name: Kommode
+      supported_features: 44
+      color_mode: color_temp
+      brightness: 3
+      color_temp_kelvin: 1801
+      color_temp: 555
+      hs_color:
+      - 29.751
+      - 100
+      rgb_color:
+      - 255
+      - 126
+      - 0
+      xy_color:
+      - 0.614
+      - 0.373
+      state: 'on'
+    light.hue_go_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Lampi
+      supported_features: 44
+      color_mode: xy
+      brightness: 3
+      hs_color:
+      - 26.725
+      - 89.804
+      rgb_color:
+      - 255
+      - 128
+      - 26
+      xy_color:
+      - 0.6091
+      - 0.3702
+      effect: None
+      state: 'on'
+  icon: mdi:weather-night
+  metadata: {}
+- id: '1651699265494'
+  name: Home Entertainment
+  entities:
     light.streifen:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       supported_color_modes:
@@ -211,26 +227,17 @@
       dynamics: none
       friendly_name: Streifen
       supported_features: 40
-      color_mode: xy
-      brightness: 51
-      hs_color:
-      - 34.508
-      - 75.686
-      rgb_color:
-      - 255
-      - 173
-      - 62
-      xy_color:
-      - 0.536
-      - 0.4095
-      state: 'on'
+      state: 'off'
     light.hue_gradient_lightstrip_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       effect_list:
       - None
       - candle
       - fire
+      - sunrise
       supported_color_modes:
       - color_temp
       - xy
@@ -246,20 +253,11 @@
       friendly_name: Weihnachtsstern
       supported_features: 0
       state: unavailable
-    light.hue_smart_plug_1:
-      supported_color_modes: []
-      mode: normal
-      dynamics: none
-      friendly_name: Lichterkette links
-      supported_features: 0
-      state: 'off'
     light.hue_smart_plug_1_2:
       supported_color_modes: []
-      mode: normal
-      dynamics: none
       friendly_name: Lichterkette rechts
       supported_features: 0
-      state: 'off'
+      state: unavailable
     cover.wohnzimmer_rollo:
       current_position: 0
       device_class: shutter
@@ -306,11 +304,21 @@
       friendly_name: Plug Küche
       supported_features: 0
       state: 'off'
-  icon: mdi:television
-- id: '1652084230776'
-  name: Meeting
-  entities:
-    light.daniel_schreibtisch_mitte:
+    light.color_temperature_light_1:
+      min_color_temp_kelvin: 1801
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 555
+      supported_color_modes:
+      - color_temp
+      mode: normal
+      dynamics: none
+      friendly_name: Couch
+      supported_features: 40
+      state: 'off'
+    light.hue_go_1_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       effect_list:
@@ -322,94 +330,149 @@
       - xy
       mode: normal
       dynamics: none
-      friendly_name: Daniel Schreibtisch mitte
+      friendly_name: Hue go Wohnzimmer
       supported_features: 44
-      color_mode: color_temp
-      brightness: 115
-      hs_color:
-      - 54.768
-      - 1.6
-      rgb_color:
-      - 255
-      - 254
-      - 250
-      xy_color:
-      - 0.326
-      - 0.333
-      effect: None
-      color_temp: 153
-      state: 'on'
-    light.schreibtisch_daniel_2:
-      supported_color_modes:
-      - color_temp
-      - xy
-      icon: mdi:lightbulb-group
-      friendly_name: Schreibtisch Daniel
-      supported_features: 44
+      state: 'off'
+    light.hinten_links:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       effect_list:
       - None
       - candle
       - fire
-      entity_id:
-      - light.daniel_schreibtisch_links
-      - light.daniel_schreibtisch_rechts
+      supported_color_modes:
+      - color_temp
+      - xy
       color_mode: color_temp
-      brightness: 255
+      brightness: 51
+      color_temp_kelvin: 2000
+      color_temp: 500
       hs_color:
-      - 54.768
-      - 1.6
+      - 30.601
+      - 94.547
       rgb_color:
       - 255
-      - 254
-      - 250
+      - 136
+      - 13
       xy_color:
-      - 0.326
-      - 0.333
+      - 0.599
+      - 0.382
       effect: None
-      color_temp: 153
+      mode: normal
+      dynamics: none
+      friendly_name: Hinten links
+      supported_features: 44
       state: 'on'
+    light.hinten_mitte:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 51
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 136
+      - 13
+      xy_color:
+      - 0.599
+      - 0.382
+      effect: None
+      mode: normal
+      dynamics: none
+      friendly_name: Hinten mitte
+      supported_features: 44
+      state: 'on'
+    light.hinten_rechts:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 51
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 136
+      - 13
+      xy_color:
+      - 0.599
+      - 0.382
+      mode: normal
+      dynamics: none
+      friendly_name: Hinten rechts
+      supported_features: 40
+      state: 'on'
+  icon: mdi:television
+  metadata: {}
 - id: '1652728036315'
   name: Wohnung verrammeln
   entities:
     cover.schlafzimmer_rollo_balkon:
       current_position: 50
-      device_class: shutter
+      device_class: shade
       friendly_name: Schlafzimmer Rollo Balkon
       supported_features: 15
       state: open
     cover.wohnzimmer_rollo:
       current_position: 50
-      device_class: shutter
+      device_class: shade
       friendly_name: Wohnzimmer Rollo
       supported_features: 15
       state: open
     cover.wohnzimmer_rollo_balkon_links:
       current_position: 50
-      device_class: shutter
+      device_class: shade
       friendly_name: Wohnzimmer Rollo Balkon Links
       supported_features: 15
       state: open
     cover.wohnzimmer_rollo_balkon_rechts:
       current_position: 50
-      device_class: shutter
+      device_class: shade
       friendly_name: Wohnzimmer Rollo Balkon Rechts
       supported_features: 15
       state: open
     cover.kuche_rollo_links:
       current_position: 50
-      device_class: shutter
+      device_class: shade
       friendly_name: Küche Rollo links
       supported_features: 15
       state: open
     cover.kuche_rollo_rechts:
       current_position: 50
-      device_class: shutter
+      device_class: shade
       friendly_name: Küche Rollo rechts
       supported_features: 15
       state: open
+    cover.buro_rollo:
+      current_position: 51
+      device_class: shade
+      friendly_name: Büro Rollo
+      supported_features: 15
+      state: open
   icon: mdi:curtains-closed
+  metadata: {}
 - id: '1653237592741'
   name: Rollos nachts im Sommer Schlafzimmer
   entities:
@@ -484,3 +547,761 @@
   metadata:
     cover.buro_rollo:
       entity_only: false
+- id: '1665404083929'
+  name: Küche Arbeitslicht
+  entities:
+    light.on_off_plug_1_2:
+      supported_color_modes: []
+      mode: normal
+      dynamics: none
+      friendly_name: Plug Küche
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+  metadata: {}
+- id: '1667511001067'
+  name: Küche Nachtlicht
+  entities:
+    light.streifen:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Streifen
+      supported_features: 40
+      color_mode: color_temp
+      brightness: 26
+      color_temp: 443
+      hs_color:
+      - 29.599
+      - 82.123
+      rgb_color:
+      - 255
+      - 148
+      - 45
+      xy_color:
+      - 0.574
+      - 0.388
+      state: 'on'
+  icon: mdi:lightbulb-night
+  metadata: {}
+- id: '1669625498758'
+  name: Büro Start Mittagsschlaf
+  entities:
+    light.hue_filament_bulb_1:
+      effect_list:
+      - None
+      - candle
+      supported_color_modes:
+      - brightness
+      mode: normal
+      dynamics: none
+      friendly_name: Tischlampe
+      supported_features: 44
+      state: 'off'
+    light.buro_deckenlampe_2:
+      min_color_temp_kelvin: 2202
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 454
+      supported_color_modes:
+      - color_temp
+      entity_id:
+      - light.burodecke_1
+      - light.burodecke_2
+      - light.burodecke_3
+      - light.burodecke_4
+      icon: mdi:lightbulb-group
+      friendly_name: Büro Deckenlampe
+      supported_features: 40
+      color_mode: color_temp
+      brightness: 84
+      color_temp_kelvin: 2202
+      color_temp: 454
+      hs_color:
+      - 29.79
+      - 84.553
+      rgb_color:
+      - 255
+      - 146
+      - 39
+      xy_color:
+      - 0.579
+      - 0.388
+      state: 'on'
+    light.wickeltisch:
+      effect_list:
+      - None
+      - candle
+      supported_color_modes:
+      - brightness
+      mode: normal
+      dynamics: none
+      icon: mdi:spotlight-beam
+      friendly_name: Wickeltisch
+      supported_features: 44
+      state: 'off'
+    cover.buro_rollo:
+      current_position: 100
+      device_class: shutter
+      friendly_name: Büro Rollo
+      supported_features: 15
+      state: closing
+    cover.buro_rollo_balkon:
+      current_position: 100
+      device_class: shutter
+      friendly_name: Büro Rollo Balkon
+      supported_features: 15
+      state: closing
+  metadata:
+    light.buro_deckenlampe_2:
+      entity_only: true
+- id: '1671809559015'
+  name: Weihnachten
+  entities:
+    light.hue_gradient_lightstrip_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - sunrise
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      icon: mdi:led-strip-variant
+      friendly_name: Gradient
+      supported_features: 44
+      color_mode: xy
+      brightness: 38
+      hs_color:
+      - 34.244
+      - 80.392
+      rgb_color:
+      - 255
+      - 167
+      - 50
+      xy_color:
+      - 0.5492
+      - 0.4082
+      effect: fire
+      state: 'on'
+    switch.lichterkette_mitte:
+      friendly_name: Lichterkette Mitte
+      state: 'on'
+    light.weihnachtsstern:
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 255
+      linkquality: 80
+      power_on_behavior:
+      update:
+        state: idle
+      update_available: false
+      friendly_name: Weihnachtsstern
+      supported_features: 44
+      state: 'on'
+    light.hinten_links:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Hinten links
+      supported_features: 44
+      color_mode: color_temp
+      brightness: 38
+      color_temp_kelvin: 2732
+      color_temp: 366
+      hs_color:
+      - 28.327
+      - 64.71
+      rgb_color:
+      - 255
+      - 167
+      - 89
+      xy_color:
+      - 0.524
+      - 0.387
+      effect: None
+      state: 'on'
+    light.hinten_mitte:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Hinten mitte
+      supported_features: 44
+      color_mode: color_temp
+      brightness: 43
+      color_temp_kelvin: 2732
+      color_temp: 366
+      hs_color:
+      - 28.327
+      - 64.71
+      rgb_color:
+      - 255
+      - 167
+      - 89
+      xy_color:
+      - 0.524
+      - 0.387
+      effect: None
+      state: 'on'
+    light.hinten_rechts:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Hinten rechts
+      supported_features: 40
+      color_mode: color_temp
+      brightness: 33
+      color_temp_kelvin: 2732
+      color_temp: 366
+      hs_color:
+      - 28.327
+      - 64.71
+      rgb_color:
+      - 255
+      - 167
+      - 89
+      xy_color:
+      - 0.524
+      - 0.387
+      state: 'on'
+  icon: mdi:string-lights
+  metadata: {}
+- id: '1673557236432'
+  name: Schlafzimmer Arbeitsplatz Arbeiten
+  entities:
+    light.schlafzimmer_kommode:
+      min_color_temp_kelvin: 1801
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 555
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color:
+        x: 0.4273
+        y: 0.4005
+      level_config:
+        on_level: previous
+      linkquality: 98
+      power_on_behavior: previous
+      friendly_name: Kommode
+      supported_features: 44
+      color_mode: color_temp
+      brightness: 255
+      hs_color:
+      - 27.604
+      - 53.118
+      rgb_color:
+      - 255
+      - 181
+      - 119
+      xy_color:
+      - 0.484
+      - 0.38
+      color_temp_kelvin: 3144
+      color_temp: 318
+      state: 'on'
+  metadata: {}
+- id: '1673785000605'
+  name: Wohnzimmer Start Mittagschlaf
+  entities:
+    cover.wohnzimmer_rollos_2:
+      friendly_name: Wohnzimmer Rollos
+      supported_features: 15
+      current_position: 0
+      entity_id:
+      - cover.wohnzimmer_rollo
+      - cover.wohnzimmer_rollo_balkon_links
+      - cover.wohnzimmer_rollo_balkon_rechts
+      - cover.kuche_rollo_links
+      - cover.kuche_rollo_rechts
+      state: closed
+    light.kuche_licht:
+      supported_color_modes:
+      - onoff
+      friendly_name: Küche Licht
+      supported_features: 0
+      state: 'off'
+    light.streifen:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 125
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 136
+      - 13
+      xy_color:
+      - 0.599
+      - 0.382
+      mode: normal
+      dynamics: none
+      friendly_name: Streifen
+      supported_features: 40
+      state: 'on'
+    light.hue_go_1_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 67
+      hs_color:
+      - 29.7
+      - 78.431
+      rgb_color:
+      - 255
+      - 154
+      - 55
+      xy_color:
+      - 0.564
+      - 0.3904
+      effect: None
+      mode: normal
+      dynamics: none
+      friendly_name: Hue go Wohnzimmer
+      supported_features: 44
+      state: 'on'
+    light.hinten:
+      supported_color_modes:
+      - color_temp
+      - xy
+      icon: mdi:lightbulb-group
+      friendly_name: Hinten
+      supported_features: 44
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      entity_id:
+      - light.hinten_links
+      - light.hinten_rechts
+      - light.hinten_mitte
+      color_mode: color_temp
+      brightness: 51
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 136
+      - 13
+      xy_color:
+      - 0.599
+      - 0.382
+      effect: None
+      state: 'on'
+    light.light_3:
+      supported_color_modes: []
+      mode: normal
+      dynamics: none
+      friendly_name: Kräuterlicht
+      supported_features: 0
+      state: 'off'
+    light.color_temperature_light_1:
+      min_color_temp_kelvin: 1801
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 555
+      supported_color_modes:
+      - color_temp
+      mode: normal
+      dynamics: none
+      friendly_name: Couch
+      supported_features: 40
+      color_mode: color_temp
+      brightness: 51
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 136
+      - 13
+      xy_color:
+      - 0.599
+      - 0.382
+      state: 'on'
+    light.on_off_plug_1_2:
+      supported_color_modes: []
+      mode: normal
+      dynamics: none
+      friendly_name: Plug Küche
+      supported_features: 0
+      state: 'off'
+  icon: mdi:sleep
+  metadata:
+    cover.wohnzimmer_rollos_2:
+      entity_only: true
+    light.kuche_licht:
+      entity_only: true
+    light.streifen:
+      entity_only: true
+    light.hue_go_1_2:
+      entity_only: true
+    light.hinten:
+      entity_only: true
+    light.light_3:
+      entity_only: true
+    light.color_temperature_light_1:
+      entity_only: true
+    light.on_off_plug_1_2:
+      entity_only: true
+- id: '1673787559858'
+  name: Schlafzimmer Start Mittagsschlaf
+  entities:
+    cover.schlafzimmer_rollos_2:
+      current_position: 0
+      entity_id:
+      - cover.schlafzimmer_rollo_balkon
+      - cover.schlafzimmer_rollo_links
+      - cover.schlafzimmer_rollo_rechts
+      friendly_name: Schlafzimmer Rollos
+      supported_features: 15
+      state: closed
+    light.schlafzimmer_licht:
+      supported_color_modes:
+      - onoff
+      friendly_name: Schlafzimmer Licht
+      supported_features: 0
+      state: 'off'
+    switch.schlafzimmer_ladeplatz:
+      friendly_name: Schlafzimmer Ladeplatz
+      state: 'on'
+    switch.shellyplug_s_ef6a3c:
+      friendly_name: Schlafzimmer Arbeitsplatz
+      state: 'off'
+    light.on_off_plug_1:
+      supported_color_modes: []
+      mode: normal
+      dynamics: none
+      friendly_name: Plug Schlafzimmer
+      supported_features: 0
+      state: 'off'
+    light.hue_go_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Lampi
+      supported_features: 44
+      color_mode: color_temp
+      brightness: 128
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 136
+      - 13
+      xy_color:
+      - 0.599
+      - 0.382
+      effect: None
+      state: 'on'
+    light.schlafzimmer_kommode:
+      min_color_temp_kelvin: 1801
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 555
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 127
+      hs_color:
+      - 24.471
+      - 100
+      rgb_color:
+      - 255
+      - 104
+      - 0
+      xy_color:
+      - 0.642
+      - 0.349
+      color:
+        x: 0.642
+        y: 0.349
+      level_config:
+        on_level: previous
+      linkquality: 36
+      power_on_behavior: previous
+      friendly_name: Kommode
+      supported_features: 44
+      state: 'on'
+  icon: mdi:sleep
+  metadata:
+    cover.schlafzimmer_rollos_2:
+      entity_only: true
+    light.schlafzimmer_licht:
+      entity_only: true
+    switch.schlafzimmer_ladeplatz:
+      entity_only: true
+    switch.shellyplug_s_ef6a3c:
+      entity_only: true
+    light.on_off_plug_1:
+      entity_only: true
+    light.hue_go_1:
+      entity_only: true
+    light.schlafzimmer_kommode:
+      entity_only: true
+- id: '1676414552531'
+  name: TV pausiert
+  entities:
+    light.hue_gradient_lightstrip_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      icon: mdi:led-strip-variant
+      friendly_name: Gradient
+      supported_features: 44
+      color_mode: color_temp
+      brightness: 26
+      color_temp_kelvin: 2732
+      color_temp: 366
+      hs_color:
+      - 28.327
+      - 64.71
+      rgb_color:
+      - 255
+      - 167
+      - 89
+      xy_color:
+      - 0.524
+      - 0.387
+      effect: None
+      state: 'on'
+  icon: mdi:television-pause
+  metadata: {}
+- id: '1676414594548'
+  name: TV spielt
+  entities:
+    light.hue_gradient_lightstrip_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      icon: mdi:led-strip-variant
+      friendly_name: Gradient
+      supported_features: 44
+      state: 'off'
+  icon: mdi:television-play
+  metadata: {}
+- id: '1682529475825'
+  name: Runterkommen
+  entities:
+    cover.wohnzimmer_rollos_2:
+      current_position: 18
+      entity_id:
+      - cover.wohnzimmer_rollo
+      - cover.wohnzimmer_rollo_balkon_links
+      - cover.wohnzimmer_rollo_balkon_rechts
+      - cover.kuche_rollo_links
+      - cover.kuche_rollo_rechts
+      device_class: shutter
+      friendly_name: Wohnzimmer Rollos
+      supported_features: 15
+      assumed_state: true
+      state: open
+    cover.shelly_bad:
+      current_position: 0
+      device_class: shade
+      friendly_name: Bad Rollo
+      supported_features: 15
+      state: closed
+    cover.buro_rollos:
+      current_position: 0
+      entity_id:
+      - cover.buro_rollo
+      - cover.buro_rollo_balkon
+      friendly_name: Kinderzimmer Rollos
+      supported_features: 15
+      state: closed
+  icon: mdi:bell-sleep
+  metadata:
+    cover.wohnzimmer_rollos_2:
+      entity_only: true
+    cover.shelly_bad:
+      entity_only: true
+    cover.buro_rollos:
+      entity_only: true
+- id: '1682666613106'
+  name: Kinderzimmer Arbeiten
+  entities:
+    light.dimmable_light_1_2:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 194
+      mode: normal
+      dynamics: none
+      friendly_name: Schreibtischlampe
+      supported_features: 40
+      state: 'on'
+    light.burodecke_1:
+      min_color_temp_kelvin: 2202
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 454
+      supported_color_modes:
+      - color_temp
+      mode: normal
+      dynamics: none
+      friendly_name: Bürodecke 1
+      supported_features: 40
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 6535
+      color_temp: 153
+      hs_color:
+      - 54.768
+      - 1.6
+      rgb_color:
+      - 255
+      - 254
+      - 250
+      xy_color:
+      - 0.326
+      - 0.333
+      state: 'on'
+    light.burodecke_3:
+      min_color_temp_kelvin: 2202
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 454
+      supported_color_modes:
+      - color_temp
+      mode: normal
+      dynamics: none
+      friendly_name: Bürodecke 3
+      supported_features: 40
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 6535
+      color_temp: 153
+      hs_color:
+      - 54.768
+      - 1.6
+      rgb_color:
+      - 255
+      - 254
+      - 250
+      xy_color:
+      - 0.326
+      - 0.333
+      state: 'on'
+  icon: mdi:briefcase
+  metadata: {}

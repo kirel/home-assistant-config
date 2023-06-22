@@ -12,14 +12,6 @@ octocast:
   mode: single
   icon: mdi:webcam
   alias: OctoCast
-buzzer:
-  sequence:
-  - type: turn_on
-    device_id: 6a879e5cfd16728e80035dde9ea32461
-    entity_id: switch.haustur
-    domain: switch
-  mode: single
-  alias: Buzzer
 alle_lichter_aus:
   sequence:
   - service: light.turn_off
@@ -34,6 +26,7 @@ alle_lichter_aus:
       - efdc37a3c400d1f5c61eff6aaf14282d
       - cf9a68fe88bae87e9a7425691f86f38c
       - e20a5307dfa7dc9c341c7e2a101722fe
+      - d0e51e1b384d709c5a49932c39581d8e
     data: {}
   - service: switch.turn_off
     target:
@@ -86,6 +79,8 @@ klimacheck_schlafzimmer:
   mode: single
 schlafen:
   sequence:
+  - service: script.feierabend
+    data: {}
   - type: turn_off
     device_id: ba2aa52175de8d5dd4f7ef1743131626
     entity_id: switch.schlafzimmer_licht
@@ -94,15 +89,15 @@ schlafen:
   - choose:
     - conditions:
       - condition: numeric_state
-        entity_id: sensor.netatmo_wohnung_weather_station_schlafzimmer_co2
+        entity_id: sensor.netatmo_wohnung_weather_station_co2
         above: '1500'
       sequence:
-      - service: tts.google_translate_say
+      - service: tts.cloud_say
         data:
           entity_id: media_player.schlafzimmer
-          message: Bitte noch lüften. CO2 bei {{states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')}}
+          message: Bitte noch lüften. CO2 bei {{states('sensor.netatmo_wohnung_weather_station_co2')}}
             PPM.
-          language: de
+          language: de-DE
       - device_id: d4fe64964b90b59d38287dd07b740305
         domain: cover
         entity_id: cover.schlafzimmer_rollo_balkon
@@ -138,50 +133,31 @@ schlafen:
         entity_id: cover.schlafzimmer_rollo_balkon
         type: set_position
         position: 0
-      - service: tts.google_translate_say
+      - service: tts.cloud_say
         data:
           entity_id: media_player.schlafzimmer
-          message: CO2 bei {{states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')}}
+          message: CO2 bei {{states('sensor.netatmo_wohnung_weather_station_co2')}}
             PPM.
-          language: de
+          language: de-DE
     default:
     - delay:
         hours: 0
         minutes: 0
         seconds: 5
         milliseconds: 0
-    - service: tts.google_translate_say
+    - service: tts.cloud_say
       data:
         entity_id: media_player.schlafzimmer
-        message: CO2 bei {{states('sensor.netatmo_wohnung_weather_station_schlafzimmer_co2')}}
+        message: CO2 bei {{states('sensor.netatmo_wohnung_weather_station_co2')}}
           PPM.
-        language: de
+        language: de-DE
+  - type: turn_off
+    device_id: e74655c418ff99dbcafd35325628bad5
+    entity_id: switch.schlafzimmer_ladeplatz
+    domain: switch
   mode: single
   icon: mdi:sleep
   alias: Schlafen
-arbeiten:
-  alias: Arbeiten
-  sequence:
-  - service: light.turn_on
-    data:
-      brightness_pct: 100
-      kelvin: 6000
-    target:
-      entity_id: light.schreibtisch_daniel_2
-  mode: single
-  icon: mdi:account-hard-hat
-feierabend:
-  alias: Feierabend
-  sequence:
-  - service: light.turn_off
-    data:
-      transition: 3
-    target:
-      entity_id:
-      - light.schreibtisch_daniel_2
-      - light.daniel_schreibtisch_mitte
-  mode: single
-  icon: mdi:sofa-single-outline
 raw_shutdown:
   alias: RAW - Shutdown
   sequence:
@@ -192,21 +168,21 @@ raw_shutdown:
 raw_hibernate:
   alias: RAW - Hibernate
   sequence:
-  - service: mqtt.publish
-    data:
-      topic: iotlink/workgroup/raw/commands/hibernate
-      payload: ''
+  - service: button.press
+    data: {}
+    target:
+      entity_id: button.raw_ruhezustand_2
 wickeln:
   alias: Wickeln
   sequence:
   - if:
     - condition: numeric_state
-      entity_id: sensor.netatmo_wohnung_weather_station_schlafzimmer_temperature
+      entity_id: sensor.netatmo_wohnung_buro_temperature
       below: '20'
     then:
     - type: turn_on
       device_id: a185454614370f67aee80a6327bcbed4
-      entity_id: switch.warmelampe
+      entity_id: switch.schlafzimmer_warmelampe
       domain: switch
   - choose:
     - conditions:
@@ -228,12 +204,8 @@ wickeln:
 wickeln_fertig:
   sequence:
   - type: turn_off
-    device_id: 23463e1aa3532dbb05776cd18c12d83f
-    entity_id: light.schlafzimmer_kommode
-    domain: light
-  - type: turn_off
     device_id: a185454614370f67aee80a6327bcbed4
-    entity_id: switch.warmelampe
+    entity_id: switch.schlafzimmer_warmelampe
     domain: switch
   - type: turn_off
     device_id: 5021d5f39bca4bd5277fb35408a7b63c
@@ -248,7 +220,10 @@ home_entertainment_tv:
   - service: media_player.turn_on
     data: {}
     target:
-      entity_id: media_player.android_tv_192_168_50_17
+      entity_id:
+      - media_player.pioneer_receiver
+      - media_player.beamer
+      - media_player.android_tv_192_168_50_20
   - service: media_player.select_source
     data:
       source: Shield
@@ -263,23 +238,18 @@ home_entertainment_tv:
 home_entertainment_ps5:
   alias: Home Entertainment PS5
   sequence:
-  - service: switch.turn_on
+  - service: homeassistant.turn_on
     data: {}
     target:
-      entity_id: switch.ps5
+      entity_id:
+      - switch.ps5
+      - media_player.pioneer_receiver
+      - media_player.beamer
   - service: media_player.select_source
     data:
       source: PS5
     target:
       entity_id: media_player.pioneer_receiver
-  - service: media_player.turn_on
-    data: {}
-    target:
-      entity_id: media_player.pioneer_receiver
-  - service: media_player.turn_on
-    data: {}
-    target:
-      entity_id: media_player.beamer
   - service: scene.turn_on
     target:
       entity_id: scene.home_entertainment
@@ -316,22 +286,34 @@ saugen_kuche:
       rooms: C
       clean_mode: 2
       repeats: 1
+      mop_mode: 1
     target:
       entity_id: vacuum.dreame_d9
+  - service: dreame_vacuum.vacuum_clean_segment
+    data:
+      segments: 4
+    target:
+      entity_id: vacuum.sauggerat
   mode: single
   icon: mdi:table-furniture
 saugen_buro:
-  alias: 'Saugen: Büro'
+  alias: 'Saugen: Kinderzimmer'
   sequence:
   - service: xiaomi_vacuum.vacuum_clean_room_by_id
     data:
       rooms: B
       clean_mode: 2
       repeats: 1
+      mop_mode: 1
     target:
       entity_id: vacuum.dreame_d9
+  - service: dreame_vacuum.vacuum_clean_segment
+    data:
+      segments: 1
+    target:
+      entity_id: vacuum.sauggerat
   mode: single
-  icon: mdi:desk
+  icon: mdi:toy-brick
 saugen_flur:
   alias: 'Saugen: Flur'
   sequence:
@@ -340,6 +322,7 @@ saugen_flur:
       rooms: D
       clean_mode: 2
       repeats: 1
+      mop_mode: 1
     target:
       entity_id: vacuum.dreame_d9
   mode: single
@@ -352,19 +335,291 @@ saugen_bad:
       clean_mode: 2
       repeats: 1
       rooms: E
+      mop_mode: 1
     target:
       entity_id: vacuum.dreame_d9
+  - service: dreame_vacuum.vacuum_clean_segment
+    data:
+      segments: 2
+    target:
+      entity_id: vacuum.sauggerat
   mode: single
   icon: mdi:paper-roll
 saugen_wohnzimmer:
   alias: 'Saugen: Wohnzimmer'
   sequence:
-  - service: xiaomi_vacuum.vacuum_clean_room_by_id
+  - service: dreame_vacuum.vacuum_clean_segment
     data:
-      clean_mode: 2
-      repeats: 1
-      rooms: F
+      segments: 5
     target:
-      entity_id: vacuum.dreame_d9
+      entity_id: vacuum.sauggerat
   mode: single
   icon: mdi:sofa
+saugen_schlafzimmer:
+  alias: 'Saugen: Schlafzimmer'
+  sequence:
+  - service: dreame_vacuum.vacuum_clean_segment
+    data:
+      segments: 7
+    target:
+      entity_id: vacuum.sauggerat
+  mode: single
+  icon: mdi:bed-empty
+home_entertainment_xbox:
+  alias: Home Entertainment Xbox
+  sequence:
+  - service: homeassistant.turn_on
+    data: {}
+    target:
+      entity_id:
+      - media_player.wohnzimmer_xbox
+      - media_player.pioneer_receiver
+      - media_player.beamer
+  - service: media_player.select_source
+    data:
+      source: Xbox
+    target:
+      entity_id: media_player.pioneer_receiver
+  - service: scene.turn_on
+    target:
+      entity_id: scene.home_entertainment
+    metadata: {}
+  mode: single
+  icon: mdi:microsoft-xbox
+strom_sparen:
+  alias: Strom sparen
+  sequence:
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id:
+      - switch.smart_plugs_zum_strom_sparen
+      - switch.beamer_plug
+  - service: notify.daniel
+    data:
+      message: "Fahre die Wohnung runter \U0001F4A4."
+      data:
+        tag: strom-sparen
+        push:
+          interruption-level: passive
+  - delay:
+      hours: 0
+      minutes: 10
+      seconds: 0
+      milliseconds: 0
+  - service: notify.daniel
+    data:
+      message: clear_notification
+      data:
+        tag: strom-sparen
+  mode: single
+  icon: mdi:home-lightning-bolt-outline
+wohnung_hochfahren:
+  alias: Wohnung hochfahren
+  sequence:
+  - service: notify.daniel
+    data:
+      message: Fahre die Wohnung hoch ⚡️.
+      data:
+        tag: wohnung-hochfahren
+        push:
+          interruption-level: passive
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.smart_plugs_zum_strom_sparen
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - media_player.android_tv_192_168_50_17
+      from: unavailable
+    timeout:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.beamer_plug
+  - delay:
+      hours: 0
+      minutes: 10
+      seconds: 0
+      milliseconds: 0
+  - service: notify.daniel
+    data:
+      message: clear_notification
+      data:
+        tag: wohnung-hochfahren
+  mode: single
+  icon: mdi:home-lightning-bolt
+mittagsschlaf:
+  alias: Mittagsschlaf
+  sequence:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.mittagsschlaf
+    metadata: {}
+  - service: light.turn_off
+    data:
+      transition: 300
+    target:
+      entity_id: light.burodecke_1
+  - service: light.turn_off
+    data:
+      transition: 240
+    target:
+      entity_id: light.burodecke_2
+  - service: light.turn_off
+    data:
+      transition: 180
+    target:
+      entity_id: light.burodecke_3
+  - service: light.turn_off
+    data:
+      transition: 120
+    target:
+      entity_id: light.burodecke_4
+  mode: single
+  icon: mdi:sleep
+sonnenaufgang:
+  alias: Sonnenaufgang
+  sequence:
+  - service: light.turn_on
+    data:
+      brightness_pct: 1
+      kelvin: 2000
+    target:
+      entity_id:
+      - light.hue_go_1
+      - light.schlafzimmer_kommode
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+      kelvin: 4400
+      transition: 300
+    target:
+      entity_id:
+      - light.hue_go_1
+      - light.schlafzimmer_kommode
+  mode: single
+  icon: mdi:weather-sunset-up
+wohnzimmer_luften:
+  alias: Wohnzimmer lüften
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_type: custom
+      media_content_id: timer auf 5 minuten
+    target:
+      entity_id: media_player.wohnzimmer_echo_dot
+  - if:
+    - condition: state
+      entity_id: cover.rollos
+      state: closed
+    then:
+    - service: cover.open_cover
+      data: {}
+      target:
+        entity_id:
+        - cover.wohnzimmer_rollos_2
+        - cover.buro_rollo
+        - cover.shelly_bad
+    - delay:
+        hours: 0
+        minutes: 5
+        seconds: 0
+        milliseconds: 0
+    - service: cover.close_cover
+      data: {}
+      target:
+        entity_id:
+        - cover.wohnzimmer_rollos_2
+        - cover.buro_rollos
+        - cover.shelly_bad
+  mode: single
+  icon: mdi:window-open
+beamer_verzogert_an:
+  alias: Beamer verzögert an
+  sequence:
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - media_player.android_tv_192_168_50_17
+      from: unavailable
+    timeout:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - service: media_player.turn_off
+    data: {}
+    target:
+      entity_id: media_player.android_tv_192_168_50_17
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.beamer_plug
+  mode: single
+  icon: mdi:home-lightning-bolt
+schlafzimmer_mittagsschlaf:
+  alias: Schlafzimmer Mittagsschlaf
+  sequence:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.schlafzimmer_start_mittagsschlaf
+    metadata: {}
+  - service: light.turn_off
+    data:
+      transition: 300
+    target:
+      area_id: 29e604877babae723f8a353a2f1bd4f5
+  mode: single
+  icon: mdi:sleep
+wohnzimmer_mittagsschlaf:
+  alias: Wohnzimmer Mittagsschlaf
+  sequence:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.wohnzimmer_start_mittagschlaf
+    metadata: {}
+  - service: light.turn_off
+    data:
+      transition: 300
+    target:
+      area_id:
+      - ec3b135bee00b2ab1ebd6626e0a690ca
+      - c03d1a02f0bcd1b62fb6f8e50ef55e04
+  mode: single
+  icon: mdi:sleep
+feierabend:
+  alias: Feierabend
+  sequence:
+  - type: turn_off
+    device_id: 7a23f196d1bd26fbfd1c2c5f3fbca5ca
+    entity_id: switch.shellyplug_s_ef6a3c
+    domain: switch
+  - type: turn_off
+    device_id: 23463e1aa3532dbb05776cd18c12d83f
+    entity_id: light.schlafzimmer_kommode
+    domain: light
+  mode: single
+arbeiten:
+  alias: Arbeiten
+  sequence:
+  - type: turn_on
+    device_id: e74655c418ff99dbcafd35325628bad5
+    entity_id: switch.schlafzimmer_ladeplatz
+    domain: switch
+  - type: turn_on
+    device_id: 7a23f196d1bd26fbfd1c2c5f3fbca5ca
+    entity_id: switch.shellyplug_s_ef6a3c
+    domain: switch
+  mode: single
+  icon: mdi:briefcase

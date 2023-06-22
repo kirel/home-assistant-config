@@ -1,0 +1,11 @@
+- platform: group
+  name: "everyone"
+  services:
+    - service: mobile_app_mobilgeraet
+    - service: mobile_app_tabletgerat
+    - service: mobile_app_sabines_a70
+- platform: group
+  name: "daniel"
+  services:
+    - service: mobile_app_mobilgeraet
+    - service: mobile_app_tabletgerat

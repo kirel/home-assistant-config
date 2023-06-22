@@ -13,7 +13,10 @@ panel_iframe:
     url: "https://portainer.lan"
     icon: "mdi:docker"
     require_admin: true
-  
+
+discovery:
+  ignore:
+    - apple_tv 
 
 python_script:
 
@@ -28,36 +31,15 @@ http:
     - 172.18.0.0/24
     - 172.19.0.0/24
     - 172.20.0.0/24
-
-mqtt:
-  broker: 192.168.50.5
-  discovery: true
-
-# Text to speech
-tts:
-  - platform: google_translate
-    base_url: "http://192.168.50.5:8123"
  
-
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 template: !include templates.yaml
+notify: !include notify.yaml
 frontend:
   themes: !include_dir_merge_named themes
-
-#camera:
-  #- platform: mjpeg
-  #  name: OctoPrint
-  #  still_image_url: http://192.168.50.55/webcam/?action=snapshot
-  #  mjpeg_url: http://192.168.50.55/webcam/?action=stream
-  #- platform: generic
-  #  still_image_url: http://192.168.50.80:2323?cmd=getCamshot&password=fire
-  #  name: Fire Tablet
-  #- platform: generic
-  #  still_image_url: http://192.168.50.81:2323?cmd=getCamshot&password=fire
-  #  name: Galaxy Tab A7
 
 wake_on_lan:
 
@@ -75,13 +57,13 @@ switch:
         unique_id: ps_5_switch
         command_state: python3 /config/sensors/ps5.py -b -q 192.168.50.169 | grep -q ON
         command_on: python3 /config/sensors/ps5.py -u 1012966755 -w 192.168.50.169 # TODO credential in secret?
-        icon_template: "mdi:sony-playstation"
+        icon_template: "mdi:sony-playstation" 
 
-vacuum:
-  - platform: xiaomi_vacuum
-    host: 192.168.50.35
-    token: !secret xiaomi_token
-    name: Dreame D9
+#vacuum:
+#  - platform: xiaomi_vacuum
+#    host: 192.168.50.35
+#    token: !secret xiaomi_token
+#    name: Dreame D9
     
 calendar:
   - platform: todoist
@@ -95,10 +77,25 @@ media_player:
       strm-box: Shield
       tv: Beamer
       dvd: Ultra
-      video2: PS5
+      video2: Steam Deck
       game: Xbox
 
 sensor:
+  - platform: statistics
+    name: "Kinderzimmertemperatur Minimum über 24 Stunden"
+    entity_id: sensor.netatmo_wohnung_weather_station_schlafzimmer_temperature
+    state_characteristic: value_min
+    max_age:
+      hours: 24
+    sampling_size: 20
+  - platform: statistics
+    name: "Außentemperatur Minimum über 24 Stunden"
+    entity_id: sensor.netatmo_wohnung_weather_station_draussen_temperature
+    state_characteristic: value_min
+    max_age:
+      hours: 24
+    sampling_size: 20
+  # room assistant
   - platform: mqtt_room
     device_id: "apple:1006:10-8"
     #device_id: "apple:iphone13-2"
@@ -109,12 +106,6 @@ sensor:
   - platform: mqtt_room
     device_id: "known:90f15707f857"
     name: 'Daniels Venu 2'
-    state_topic: 'espresense/rooms'
-    timeout: 60
-    away_timeout: 120
-  - platform: mqtt_room
-    device_id: "known:a038f8e05cb6"
-    name: 'Daniels Oura'
     state_topic: 'espresense/rooms'
     timeout: 60
     away_timeout: 120
@@ -148,9 +139,16 @@ sensor:
   # D9
   - platform: history_stats
     name: vacuum cleaning since last emptied
-    entity_id: vacuum.dreame_d9
+    entity_id: vacuum.sauggerat
     state: "cleaning"
     type: count
+    start: "{{ state_attr('input_datetime.d9_last_emptied', 'timestamp') }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: vacuum cleaning time since last emptied
+    entity_id: vacuum.sauggerat
+    state: "cleaning"
+    type: time
     start: "{{ state_attr('input_datetime.d9_last_emptied', 'timestamp') }}"
     end: "{{ now() }}"
   # PS5
@@ -189,6 +187,15 @@ binary_sensor:
     unique_id: ps5
     command: python3 /config/sensors/ps5.py -b -q 192.168.50.169
     scan_interval: 10
+  - platform: ffmpeg_noise
+    name: Baby Noise
+    input: rtsp://192.168.50.6:8554/unicast
+    extra_arguments: -filter:a highpass=f=300,lowpass=f=2500,volume=volume=2 -codec:a libmp3lame -ar 16000 -nostats
+    #output: -f mp3 icecast://stream_user:stream_pw@127.0.0.1:8000/babyphone.mp3
+    initial_state: false
+    duration: 3
+    reset: 60
+    peak: -32
 
 input_boolean:
   shelly_bad_manual:
@@ -249,25 +256,6 @@ timer:
     name: Wohnzimmer Rollo Balkon rechts Manuell
     restore: true
 
-
-browser_mod:
-  prefix: "browser_"
-  devices:
-    36325f2a-8626fd56:
-      name: dashboard
-      camera: false
-      disable:
-        - media_player
-        - light
-    fc203975-d058255d:
-      name: galaxy
-      camera: false
-      disable:
-        - media_player
-        - light
-  disable:
-    - all
-
 homeassistant:
   auth_providers:
     - type: homeassistant
@@ -275,13 +263,20 @@ homeassistant:
       trusted_networks:
         - 127.0.0.1
         - 192.168.50.0/24
+      trusted_users:
+        192.168.50.32:
+          - 39be0cd256c94d8cb9d0c557201492f1
+        192.168.50.166:
+          - 6ee0f1e98181427c9b595b88ae5fc746
+        192.168.50.231:
+          - 6ee0f1e98181427c9b595b88ae5fc746
+        192.168.50.0/24:
+          - eed84c41719f423fb8f2c151657dde77
   customize:
     device_tracker.daniel_ble:
       icon: mdi:bluetooth
     sensor.daniel_ble:
       icon: mdi:bluetooth
-    sensor.daniels_oura:
-      icon: mdi:ring
     sensor.daniels_venu_2:
       icon: mdi:watch
     sensor.daniels_iphone:

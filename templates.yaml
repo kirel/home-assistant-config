@@ -13,6 +13,7 @@
                   'keller' : 'Keller',
                   'waschraum' : 'Waschraum',
                   'wohnzimmer' : 'Wohnzimmer',
+                  'bad' : 'Bad',
                   'not_home' : 'not_home',
                   'home' : 'home'
                }
@@ -23,6 +24,54 @@
           {{ room_names[states('sensor.daniels_iphone')] }}
         {% else %}
           {{ room_names[states('device_tracker.iphone')] }}
+        {% endif %}
+    - name: "Kinderzimmer Temperaturbereich"
+      state: >
+        {% set temp = states('sensor.netatmo_wohnung_weather_station_schlafzimmer_temperature') | float %}
+        {% if temp < 16 %}
+          unter 16
+        {% elif temp < 18 %}
+          16-17
+        {% elif temp < 20 %}
+          18-19
+        {% elif temp < 23 %}
+          20-22
+        {% elif temp < 25 %}
+          23-24
+        {% else %}
+          über 25
+        {% endif %}
+    - name: "Draußen Temperaturbereich"
+      state: >
+        {% set temp = states('sensor.netatmo_wohnung_weather_station_draussen_temperature') | float %}
+        {% if temp < 16 %}
+          unter 16
+        {% elif temp < 18 %}
+          16-17
+        {% elif temp < 20 %}
+          18-19
+        {% elif temp < 23 %}
+          20-22
+        {% elif temp < 25 %}
+          23-24
+        {% else %}
+          über 25
+        {% endif %}
+    - name: "Vorhersage Temperaturbereich"
+      state: >
+        {% set temp = states('sensor.openweathermap_forecast_temperature') | float %}
+        {% if temp < 16 %}
+          unter 16
+        {% elif temp < 18 %}
+          16-17
+        {% elif temp < 20 %}
+          18-19
+        {% elif temp < 23 %}
+          20-22
+        {% elif temp < 25 %}
+          23-24
+        {% else %}
+          über 25
         {% endif %}
     - name: "Lights On"
       state: >
@@ -51,42 +100,20 @@
       state: >
         {{ expand('binary_sensor.fenster_und_turen') | selectattr('state', 'eq', 'on') | list | count }}
       unit_of_measurement: "offen"
-    - name: "Daniel's iPhone T"
-      unique_id: daniels_iphone_t
-      state: "{{ states('sensor.daniels_iphone') }}"
     - name: "Sonnenwinkel"
       unit_of_measurement: "°"
       state: "{{ state_attr('sun.sun', 'azimuth') }}"
     - name: "Sonnenhöhe"
       unit_of_measurement: "°"
       state: "{{ state_attr('sun.sun', 'elevation') }}"
+    - name: "Differenz Innen zu Außentemperatur"
+      unit_of_measurement: "°C"
+      state: "{{ states('sensor.wohnung_temperatur_mittelwert')|float - states('sensor.openweathermap_temperature')|float }}"
 - binary_sensor:
-    - name: "Monitor in use"
-      unique_id: monitor_in_use
-      state: >
-        {{ states('sensor.monitor_power')|float > 5 }}
-      icon: >
-          {% if is_state("binary_sensor.monitor_in_use", "on") %}
-            mdi:monitor
-          {% else %}
-            mdi:monitor-off
-          {% endif %}
-    - name: "Waschmaschine läuft"
-      unique_id: waschmaschine_in_use
-      delay_off:
-          minutes: 5
-      state: >
-        {{ states('sensor.waschmaschine_current')|float > 1 }}
-      icon: >
-          {% if is_state("binary_sensor.waschmaschine_lauft", "on") %}
-            mdi:washing-machine
-          {% else %}
-            mdi:washing-machine-off
-          {% endif %}
     - name: vacuum needs emptying
       unique_id: vacuum_needs_emptying
       state: >
-        {{ states('sensor.vacuum_cleaning_since_last_emptied')|int >= states('input_number.vacuum_empty_threshold')|int }}
+        {{ states('sensor.vacuum_cleaning_time_since_last_emptied')|int >= states('input_number.vacuum_empty_threshold')|int }}
       icon: >
           {% if is_state("binary_sensor.vacuum_needs_emptying", "on") %}
             mdi:delete-empty

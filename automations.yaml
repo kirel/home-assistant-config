@@ -50,125 +50,6 @@
     type: set_position
     position: 0
   mode: single
-- id: '1610697818461'
-  alias: Luftfeuchtigkeit
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.shelly_h_t_2e4009_humidity
-    above: '60'
-  - platform: numeric_state
-    entity_id: sensor.netatmo_wohnung_buro_schlafzimmer_humidity
-    above: '60'
-  - platform: numeric_state
-    entity_id: sensor.netatmo_wohnung_buro_humidity
-    above: '60'
-  condition: []
-  action:
-  - service: notify.mobile_app_mobilgeraet
-    data:
-      message: Die Luftfeuchtigkeit ist über 60%. Lüften wäre angebracht.
-      data:
-        url: /lovelace-dash/klima
-  mode: single
-- id: '1625467803796'
-  alias: Sonnenaufgang
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunrise
-  condition: []
-  action:
-  - device_id: 98c5db78406a0c80d54be114f1926a94
-    domain: cover
-    entity_id: cover.wohnzimmer_rollo
-    type: set_position
-    position: 100
-  - device_id: 86fcff9ca4efa7527e7df555b4df40f8
-    domain: cover
-    entity_id: cover.shelly_bad
-    type: set_position
-    position: 100
-  - device_id: b1160333c0563a465802613977d873a5
-    domain: cover
-    entity_id: cover.kuche_rollo_links
-    type: set_position
-    position: 100
-  - device_id: c373d68cdf1b59f6d679a8006a8f1ee8
-    domain: cover
-    entity_id: cover.kuche_rollo_rechts
-    type: set_position
-    position: 100
-  - device_id: 16cd2d1b13ad782383b99b622c485aac
-    domain: cover
-    entity_id: cover.wohnzimmer_rollo_balkon_links
-    type: set_position
-    position: 100
-  - device_id: ab8caa70466a3518904275bfeaa44606
-    domain: cover
-    entity_id: cover.wohnzimmer_rollo_balkon_rechts
-    type: set_position
-    position: 100
-  - device_id: 47f565dff4d81fb6a7a092460f685ce1
-    domain: cover
-    entity_id: cover.schlafzimmer_rollo_links
-    type: set_position
-    position: 100
-  - device_id: 12eb92e3c31383da36745eebc66f6b57
-    domain: cover
-    entity_id: cover.schlafzimmer_rollo_rechts
-    type: set_position
-    position: 100
-  mode: single
-- id: '1625468117983'
-  alias: Sonnenuntergang
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunset
-  condition: []
-  action:
-  - device_id: 98c5db78406a0c80d54be114f1926a94
-    domain: cover
-    entity_id: cover.wohnzimmer_rollo
-    type: set_position
-    position: 0
-  - device_id: 86fcff9ca4efa7527e7df555b4df40f8
-    domain: cover
-    entity_id: cover.shelly_bad
-    type: set_position
-    position: 0
-  - device_id: b1160333c0563a465802613977d873a5
-    domain: cover
-    entity_id: cover.kuche_rollo_links
-    type: set_position
-    position: 0
-  - device_id: c373d68cdf1b59f6d679a8006a8f1ee8
-    domain: cover
-    entity_id: cover.kuche_rollo_rechts
-    type: set_position
-    position: 0
-  - device_id: 16cd2d1b13ad782383b99b622c485aac
-    domain: cover
-    entity_id: cover.wohnzimmer_rollo_balkon_links
-    type: set_position
-    position: 0
-  - device_id: ab8caa70466a3518904275bfeaa44606
-    domain: cover
-    entity_id: cover.wohnzimmer_rollo_balkon_rechts
-    type: set_position
-    position: 0
-  - device_id: 47f565dff4d81fb6a7a092460f685ce1
-    domain: cover
-    entity_id: cover.schlafzimmer_rollo_links
-    type: set_position
-    position: 0
-  - device_id: 12eb92e3c31383da36745eebc66f6b57
-    domain: cover
-    entity_id: cover.schlafzimmer_rollo_rechts
-    type: set_position
-    position: 0
-  mode: single
 - id: wake_up_raw_s1
   alias: Wake up RAW S1
   trigger:
@@ -220,7 +101,7 @@
   description: ''
   trigger:
   - platform: time
-    at: '20:00'
+    at: '18:00:00'
   condition: []
   action:
   - type: turn_off
@@ -229,7 +110,7 @@
     domain: light
   mode: single
 - id: '1643434481496'
-  alias: Licher aus wenn nicht zuhause
+  alias: 'Strom sparen: Alles aus und wieder an wenn abwesend'
   description: ''
   trigger:
   - platform: numeric_state
@@ -239,13 +120,38 @@
       minutes: 5
       seconds: 0
     below: '1'
-  condition: []
+    id: away
+  - platform: numeric_state
+    entity_id: zone.home
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 15
+    above: 0
+    id: home
+  condition:
+  - condition: state
+    entity_id: input_boolean.gastmodus
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.urlaubsmodus
+    state: 'off'
   action:
-  - service: script.alle_lichter_aus
-    data: {}
-  - service: notify.mobile_app_mobilgeraet
-    data:
-      message: Alle Lichter ausgeschaltet.
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: away
+      sequence:
+      - service: script.strom_sparen
+        data: {}
+      - service: script.alle_lichter_aus
+        data: {}
+    - conditions:
+      - condition: trigger
+        id: home
+      sequence:
+      - service: script.wohnung_hochfahren
+        data: {}
   mode: single
 - id: '1643638551817'
   alias: Kräuterlicht morgens an (Wochenende)
@@ -332,34 +238,6 @@
     data:
       notification_id: office_co2
   mode: single
-- id: '1644165727122'
-  alias: 'Waschmaschine: fertig'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.waschmaschine_lauft
-    from: 'on'
-    to: 'off'
-  condition: []
-  action:
-  - service: input_boolean.turn_on
-    data: {}
-    target:
-      entity_id: input_boolean.washing_machine_done
-  - service: notify.notify
-    data:
-      message: Die Waschmaschine ist fertig.
-      data:
-        url: /lovelace-dash/haushalt
-        tag: washing_machine_done
-  - service: persistent_notification.create
-    data:
-      message: "\U0001F9FA Die Waschmaschine kann ausgeräumt werden."
-      notification_id: washing_machine_done
-  - service: persistent_notification.dismiss
-    data:
-      notification_id: washing_machine_running
-  mode: single
 - id: '1644477747022'
   alias: Badtür auf
   description: ''
@@ -382,7 +260,7 @@
     data:
       notification_id: bathroom_door
       message: "\U0001FA9F Badtür ist noch offen."
-  - service: notify.mobile_app_mobilgeraet
+  - service: notify.daniel
     data:
       message: Badtür ist noch offen.
       data:
@@ -407,27 +285,11 @@
   - service: persistent_notification.dismiss
     data:
       notification_id: bathroom_door
-  - service: notify.mobile_app_mobilgeraet
+  - service: notify.daniel
     data:
       message: clear_notification
       data:
         tag: bathroomdoor_open
-  mode: single
-- id: '1644593133663'
-  alias: Küchenschublade macht das Licht an
-  description: ''
-  trigger:
-  - type: vibration
-    platform: device
-    device_id: 5f176d84b7d9ebdc13f7968e468d5464
-    entity_id: binary_sensor.vibrationssensor_vibration
-    domain: binary_sensor
-  condition: []
-  action:
-  - type: turn_on
-    device_id: bdff3fc346f291b6f341547859f8cce1
-    entity_id: light.on_off_plug_1_2
-    domain: light
   mode: single
 - id: shellies_announce
   alias: Shellies Announce
@@ -473,6 +335,9 @@
     - fri
     - sat
     - sun
+  - condition: state
+    entity_id: input_boolean.urlaubsmodus
+    state: 'off'
   action:
   - type: turn_on
     device_id: 034b90190b49113fed548142e7537fcc
@@ -495,38 +360,14 @@
     - fri
     - sat
     - sun
+  - condition: state
+    entity_id: input_boolean.urlaubsmodus
+    state: 'off'
   action:
   - type: turn_off
     device_id: 034b90190b49113fed548142e7537fcc
     entity_id: switch.mikrowelle
     domain: switch
-  mode: single
-- id: '1646639581197'
-  alias: 'Arbeit: Meeting Szene wenn Kamera in Benutzung'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.daniels_billie_macbook_pro_camera_in_use
-    to: 'on'
-  condition: []
-  action:
-  - service: scene.turn_on
-    data: {}
-    target:
-      entity_id: scene.meeting
-  mode: single
-- id: '1646640422554'
-  alias: Feierabend
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: timer.office_occupied
-    to: idle
-  condition: []
-  action:
-  - service: script.feierabend
-    data: {}
   mode: single
 - id: '1646825875759'
   alias: Daniel BLE tracking
@@ -543,25 +384,6 @@
       dev_id: daniel_ble
       location_name: "{% if is_state('sensor.daniel_ble', 'not_home') -%}\n  not_home\n{%-
         else -%}\n  home\n{%- endif %}\n"
-  mode: single
-- id: '1646852885688'
-  alias: 'Arbeit: Auf Arbeit'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: device_tracker.daniel_ble
-    to: office
-  - type: motion
-    platform: device
-    device_id: 352ad6bf32b06065348bea8b8cb50cac
-    entity_id: binary_sensor.hue_motion_sensor_1_motion
-    domain: binary_sensor
-  condition: []
-  action:
-  - service: timer.start
-    data: {}
-    target:
-      entity_id: timer.office_occupied
   mode: single
 - id: '1647703831198'
   alias: Wärmelampe timer starten
@@ -633,26 +455,6 @@
     entity_id: switch.warmelampe
     domain: switch
   mode: single
-- id: '1647898463182'
-  alias: 'Arbeit: Arbeitsbeleuchtung aus wenn Monitor aus'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.monitor_in_use
-    to: 'off'
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-  condition: []
-  action:
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id:
-      - light.schreibtisch_daniel_2
-      - light.daniel_schreibtisch_mitte
-  mode: single
 - id: '1648062274112'
   alias: Wärmelampe manuell aus
   description: ''
@@ -674,7 +476,8 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: vacuum.dreame_d9
+    entity_id:
+    - vacuum.sauggerat
     to: cleaning
   condition: []
   action:
@@ -688,14 +491,15 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: vacuum.dreame_d9
+    entity_id:
+    - vacuum.sauggerat
     from: cleaning
   condition:
   - condition: state
     entity_id: binary_sensor.vacuum_needs_emptying
     state: 'on'
   action:
-  - service: notify.mobile_app_mobilgeraet
+  - service: notify.daniel
     data:
       message: D9 leeren.
       data:
@@ -727,52 +531,6 @@
     data:
       notification_id: d9_needs_emptying
   mode: single
-- id: '1649019308494'
-  alias: 'Waschmaschine: ausgeräumt'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: input_boolean.washing_machine_done
-    from: 'on'
-    to: 'off'
-  condition: []
-  action:
-  - service: notify.mobile_app_mobilgeraet
-    data:
-      message: clear_notification
-      data:
-        tag: washing_machine_done
-  - service: persistent_notification.dismiss
-    data:
-      notification_id: washing_machine_done
-  mode: single
-- id: '1649020261386'
-  alias: 'Waschmaschine: automatisch ausgeräumt'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.daniel_ble
-    to: washroom
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-  - platform: state
-    entity_id: binary_sensor.waschmaschine_lauft
-    to: 'on'
-  - type: opened
-    platform: device
-    device_id: 413be4282abb9a125d333ecd510f7db5
-    entity_id: binary_sensor.tur_waschmaschine
-    domain: binary_sensor
-  condition: []
-  action:
-  - service: input_boolean.turn_off
-    data: {}
-    target:
-      entity_id: input_boolean.washing_machine_done
-  mode: single
 - id: '1649189556776'
   alias: Wickeln tracking
   description: ''
@@ -784,7 +542,7 @@
     domain: light
   condition: []
   action:
-  - service: notify.mobile_app_mobilgeraet
+  - service: notify.daniel
     data:
       message: Groß oder klein? {{ now().strftime('%H:%M') }}
       data:
@@ -907,34 +665,6 @@
       data:
         notification_id: co2_alarm_bedroom
   mode: single
-- id: '1651732579702'
-  alias: Leaf Batteriewarnung
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.leaf_batterie_niedrig
-    to: 'on'
-    id: leaf_battery_low
-  - platform: state
-    entity_id:
-    - binary_sensor.leaf_batterie_niedrig
-    to: 'off'
-  condition: []
-  action:
-  - if:
-    - condition: trigger
-      id: leaf_battery_low
-    then:
-    - service: persistent_notification.create
-      data:
-        notification_id: leaf_battery_low
-        message: "\U0001FAAB Bitte Leaf laden."
-    else:
-    - service: persistent_notification.dismiss
-      data:
-        notification_id: leaf_battery_low
-  mode: single
 - id: '1652732792541'
   alias: 'Rollos: Wohnung verrammeln Benachrichtigung'
   description: 'Wenn es über 25 Grad wird und der Forecast sunny oder partlycloudy
@@ -976,18 +706,28 @@
     entity_id: cover.fenster_zum_verrammeln
     attribute: current_position
     above: '70'
+  - condition: state
+    entity_id: input_boolean.wohnung_verrammeln_anbieten
+    state: 'on'
   action:
   - service: persistent_notification.create
     data:
       notification_id: verrammeln
       message: ☀️ Es wird warm. Wohnung verrammeln?
-  - service: input_boolean.turn_on
-    data: {}
-    target:
-      entity_id: input_boolean.wohnung_verrammeln_anbieten
+  - service: browser_mod.popup
+    data:
+      dismissable: true
+      autoclose: false
+      left_button: Nein
+      right_button: Ja
+      title: ☀️ Es wird warm. Wohnung verrammeln?
+      right_button_action:
+        service: scene.turn_on
+        data:
+          entity_id: scene.wohnung_verrammeln
   mode: single
 - id: '1653028213005'
-  alias: Octopi Bild wenn fertig
+  alias: '3D Druck: Bild wenn fertig'
   description: ''
   trigger:
   - platform: numeric_state
@@ -1009,7 +749,7 @@
       minutes: 0
       seconds: 5
       milliseconds: 0
-  - service: notify.mobile_app_mobilgeraet
+  - service: notify.daniel
     data:
       message: Drucker ist {{states('sensor.octoprint_print_progress')|int}}% fertig.
       data:
@@ -1067,11 +807,12 @@
       - condition: trigger
         id: wickelecke_button_lang
       sequence:
-      - service: script.wickeln_fertig
+      - service: script.wickeln
         data: {}
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stillen
+      - type: turn_on
+        device_id: a185454614370f67aee80a6327bcbed4
+        entity_id: switch.schlafzimmer_warmelampe
+        domain: switch
     default: []
   mode: single
 - id: '1653478934255'
@@ -1183,21 +924,6 @@
       target:
         entity_id: cover.fenster_westen
   mode: restart
-- id: '1653859948513'
-  alias: Meeting-Licht bei Event mit Meeting
-  description: ''
-  trigger:
-  - platform: calendar
-    event: start
-    entity_id: calendar.daniel_sabine
-  condition:
-  - condition: template
-    value_template: '{{ "zoom" in trigger.calendar_event.location }}'
-  action:
-  - service: notify.mobile_app_mobilgeraet
-    data:
-      message: '{{trigger.calendar_event.summary}}'
-  mode: single
 - id: '1653912757058'
   alias: 'Lüften: Rollo auf Lüften wenn geöffnet'
   description: Schließt das Rollo nicht ganz wenn das Fenster offen ist und öffnet
@@ -1216,6 +942,9 @@
     - binary_sensor.schlafzimmer_fenstersensor_links_contact
     - binary_sensor.schlafzimmer_fenstersensor_rechts_contact
     id: window
+    to:
+    - 'on'
+    - 'off'
   - platform: state
     entity_id:
     - cover.wohnzimmer_rollo_balkon_links
@@ -1316,19 +1045,6 @@
       shake:
       - service: script.feierabend
         data: {}
-- id: '1654408376532'
-  alias: Küche Plug bei Bewegung
-  description: ''
-  use_blueprint:
-    path: freakshock88/motion_illuminance_activated_entity.yaml
-    input:
-      motion_sensor: binary_sensor.0x54ef44100043e010_occupancy
-      target_entity: light.on_off_plug_1_2
-      illuminance_sensor: sensor.0x54ef44100043e010_illuminance_lux
-      no_motion_wait: input_number.bewegungsmelder_wartezeit
-      illuminance_cutoff: input_number.bewegungsmelder_helligkeit
-      time_limit_after: input_datetime.kuche_bewegungsmelder_ab_uhrzeit
-      time_limit_before: input_datetime.kuche_bewegungsmelder_bis_uhrzeit
 - id: '1654516254285'
   alias: Low battery level detection & notification for all battery sensors
   description: ''
@@ -1338,17 +1054,16 @@
       exclude:
         entity_id:
         - sensor.daniels_ipad_2_battery_level
-        - sensor.leaf_battery_level
-        - sensor.mobilgeraet_battery_level
-        - sensor.raw_battery_level
-        - sensor.raw_battery_remaining
-      threshold: 15
+        - sensor.daniels_billie_macbook_pro_internal_battery_level_2
+        - sensor.iphone_battery_level
+        - sensor.sabines_a70_battery_level
       time: '18:00:00'
       actions:
       - service: persistent_notification.create
         data:
           notification_id: low_battery_warning
           message: "\U0001FAAB bei: {{ sensors }}"
+      threshold: 5
 - id: '1654989864612'
   alias: Rollos manuell
   description: ''
@@ -1426,44 +1141,6 @@
   - service: persistent_notification.dismiss
     data:
       notification_id: verrammeln
-  - service: input_boolean.turn_off
-    data: {}
-    target:
-      entity_id: input_boolean.wohnung_verrammeln_anbieten
-  mode: single
-- id: '1655363360652'
-  alias: 'Arbeiten: Büro Rollo runter wenn es blendet'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.daniels_monitor_in_benutzung
-    to: 'on'
-  - platform: numeric_state
-    entity_id: sun.sun
-    above: '230'
-    attribute: azimuth
-  - platform: numeric_state
-    entity_id: sun.sun
-    attribute: elevation
-    above: '10'
-  condition:
-  - condition: state
-    entity_id: binary_sensor.daniels_monitor_in_benutzung
-    state: 'on'
-  - condition: numeric_state
-    entity_id: sun.sun
-    attribute: azimuth
-    above: '220'
-  - condition: numeric_state
-    entity_id: sun.sun
-    attribute: elevation
-    above: '10'
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.buro_rollo_arbeit
-    metadata: {}
   mode: single
 - id: '1657009430568'
   alias: 'Lüften im Sommer: wenn die Temperatur draußen unter die Temperatur drinnen
@@ -1496,7 +1173,7 @@
       entity_id: person.daniel_kirsch
       state: home
     then:
-    - service: notify.mobile_app_mobilgeraet
+    - service: notify.daniel
       data:
         message: "\U0001F321 Draußen ist es jetzt kühler als drinnen. Jetzt lüften!
           \U0001F32C"
@@ -1560,7 +1237,7 @@
       entity_id: person.daniel_kirsch
       state: home
     then:
-    - service: notify.mobile_app_mobilgeraet
+    - service: notify.daniel
       data:
         message: "\U0001F321 Draußen ist es jetzt wärmer als drinnen. Fenster zu!
           \U0001FA9F"
@@ -1591,45 +1268,6 @@
     data:
       notification_id: stop_ventilate
   mode: single
-- id: '1657286626072'
-  alias: 'Arbeit: Meetinglich aus wenn Kamera aus'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.daniels_billie_macbook_pro_camera_in_use
-    to: 'off'
-  condition: []
-  action:
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.daniel_schreibtisch_mitte
-  mode: single
-- id: '1658240820941'
-  alias: 'Waschmaschine: läuft'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.waschmaschine_lauft
-    to: 'on'
-    from: 'off'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 0
-  condition: []
-  action:
-  - service: persistent_notification.create
-    data:
-      message: "\U0001F9FC Die Waschmaschine läuft."
-      notification_id: washing_machine_running
-  - service: notify.mobile_app_mobilgeraet
-    data:
-      data:
-        url: /lovelace-dash/haushalt
-  mode: single
 - id: '1658671139948'
   alias: 'Saugen: Beim Verlassen der Wohnung'
   description: ''
@@ -1649,9 +1287,1462 @@
   - service: vacuum.start
     data: {}
     target:
-      entity_id: vacuum.dreame_d9
+      entity_id: vacuum.sauggerat
   - service: input_boolean.turn_off
     data: {}
     target:
       entity_id: input_boolean.spater_saugen
+  mode: single
+- id: '1660663589775'
+  alias: Offline
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.netzwerkgerat_wan
+  condition: []
+  action:
+  - if:
+    - condition: state
+      entity_id: binary_sensor.netzwerkgerat_wan
+      state: 'off'
+    then:
+    - service: persistent_notification.create
+      data:
+        message: "\U0001F4F5 Das Internet ist offline."
+        notification_id: offline
+    else:
+    - service: persistent_notification.dismiss
+      data:
+        notification_id: offline
+  mode: single
+- id: '1661677230319'
+  alias: 'Stillen: Nächste Szene'
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 941d707c2547cbd05f3b02aaa410b874
+    type: click
+    subtype: single
+    discovery_id: 0x00158d000807301a click_single
+  condition: []
+  action:
+  - service: input_select.select_next
+    data: {}
+    target:
+      entity_id: input_select.stillen_szene
+  mode: single
+- id: '1661677488929'
+  alias: 'Stillen: Szene reset'
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_off
+    device_id: 683ccce055fb07301cd00de24c87aaad
+    entity_id: light.hue_go_1
+    domain: light
+  - platform: device
+    type: turned_off
+    device_id: 23463e1aa3532dbb05776cd18c12d83f
+    entity_id: light.schlafzimmer_kommode
+    domain: light
+  condition:
+  - condition: device
+    type: is_off
+    device_id: 23463e1aa3532dbb05776cd18c12d83f
+    entity_id: light.schlafzimmer_kommode
+    domain: light
+  - condition: device
+    type: is_off
+    device_id: 683ccce055fb07301cd00de24c87aaad
+    entity_id: light.hue_go_1
+    domain: light
+  action:
+  - service: input_select.select_option
+    data:
+      option: Aus
+    target:
+      entity_id: input_select.stillen_szene
+  mode: single
+- id: '1661678184253'
+  alias: 'Stillen: Auswahl Szene'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_select.stillen_szene
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_select.stillen_szene
+        state: Stillen
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.stillen
+        metadata: {}
+    - conditions:
+      - condition: state
+        entity_id: input_select.stillen_szene
+        state: Nachtlicht
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.schlafzimmer_nachtlicht_2
+        metadata: {}
+    default:
+    - service: light.turn_off
+      data: {}
+      target:
+        area_id: 29e604877babae723f8a353a2f1bd4f5
+  mode: single
+- id: '1661678258196'
+  alias: 'Stillen: aus bei langem Druck'
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 941d707c2547cbd05f3b02aaa410b874
+    type: action
+    subtype: hold
+    discovery_id: 0x00158d000807301a action_hold
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id: 29e604877babae723f8a353a2f1bd4f5
+  mode: single
+- id: '1663068759195'
+  alias: 'Dashboard: Battery Health'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.fire_tablet_battery_level
+    above: 80
+    id: charged
+  - platform: numeric_state
+    entity_id: sensor.fire_tablet_battery_level
+    below: 60
+    id: discharged
+  - platform: state
+    entity_id:
+    - sensor.fire_battery_level
+    to: unavailable
+    id: unavailable
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: charged
+      sequence:
+      - type: turn_off
+        device_id: 436abad22dd1e69de0d2d2a51d1e7099
+        entity_id: switch.plug_dashboard
+        domain: switch
+    - conditions:
+      - condition: trigger
+        id: discharged
+      sequence:
+      - type: turn_on
+        device_id: 436abad22dd1e69de0d2d2a51d1e7099
+        entity_id: switch.plug_dashboard
+        domain: switch
+    - conditions:
+      - condition: trigger
+        id: unavailable
+      sequence:
+      - type: turn_on
+        device_id: 436abad22dd1e69de0d2d2a51d1e7099
+        entity_id: switch.plug_dashboard
+        domain: switch
+  mode: single
+- id: '1663160320801'
+  alias: 'Dashboard: Reset to start url'
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:00:00
+  - platform: time
+    at: '18:00:00'
+  condition: []
+  action:
+  - service: button.press
+    data: {}
+    target:
+      entity_id: button.fire_tablet_load_start_url
+  mode: single
+- id: '1663763919295'
+  alias: 'Urlaubsmodus: aus wenn jemand nach Hause kommt'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: zone.home
+    above: 0
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.urlaubsmodus
+  mode: single
+- id: '1663787556455'
+  alias: 'Urlaubsmodus: Geräte aus wenn keiner Zuhause'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: zone.home
+    below: 1
+  - platform: state
+    entity_id:
+    - input_boolean.urlaubsmodus
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.urlaubsmodus
+    state: 'on'
+  - condition: numeric_state
+    entity_id: zone.home
+    below: 1
+  action:
+  - service: homeassistant.turn_off
+    data: {}
+    target:
+      entity_id:
+      - switch.multimedia
+      - switch.beamer_plug
+  mode: single
+- id: '1665127669699'
+  alias: 'Bürolicht: Schonfrist'
+  description: ''
+  trigger:
+  - device_id: 01b2d1bb9fd1c6fcaa7d047a03f8a869
+    domain: hue
+    platform: device
+    type: initial_press
+    subtype: 1
+    unique_id: b64e7dbe-2b3e-417c-9cec-988c7d7f9d69
+  - device_id: 01b2d1bb9fd1c6fcaa7d047a03f8a869
+    domain: hue
+    platform: device
+    type: initial_press
+    subtype: 2
+    unique_id: dbf74943-2cd2-4ece-b4c3-755b6df384f7
+  - device_id: 01b2d1bb9fd1c6fcaa7d047a03f8a869
+    domain: hue
+    platform: device
+    type: initial_press
+    subtype: 3
+    unique_id: d3b48331-4162-4d38-aede-61c3d1c4af4a
+  - device_id: 01b2d1bb9fd1c6fcaa7d047a03f8a869
+    domain: hue
+    platform: device
+    type: initial_press
+    subtype: 4
+    unique_id: fc6dba45-8110-4ba9-bde5-be851e886fe4
+  condition: []
+  action:
+  - service: timer.start
+    data: {}
+    target:
+      entity_id: timer.buro_licht_schonfrist
+  mode: single
+- id: '1665402801926'
+  alias: 'Küche Licht: Schonfrist'
+  description: ''
+  trigger:
+  - device_id: 61c30df94567f56f74cfcb893108a049
+    domain: hue
+    platform: device
+    type: initial_press
+    subtype: 1
+    unique_id: 57c6a96e-5831-431f-8924-bb2916252203
+  - platform: state
+    entity_id:
+    - binary_sensor.kuche_licht_input
+  condition: []
+  action:
+  - service: timer.start
+    data: {}
+    target:
+      entity_id:
+      - timer.kuche_licht_schonfrist
+  mode: single
+- id: '1665403979810'
+  alias: 'Küche Licht: An bei Bewegung und aus wenn frei'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.kuche_belegt
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.gastmodus
+    state: 'off'
+  - condition: numeric_state
+    entity_id: sensor.kuche_bewegungsmelder_illuminance_lux
+    below: input_number.bewegungsmelder_helligkeit
+  action:
+  - if:
+    - condition: state
+      entity_id: timer.kuche_licht_schonfrist
+      state: idle
+    then:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: schedule.szene_morgen
+          state: 'on'
+        sequence: []
+      - conditions:
+        - condition: state
+          entity_id: schedule.szene_tag
+          state: 'on'
+        sequence: []
+      - conditions:
+        - condition: state
+          entity_id: schedule.szene_abend
+          state: 'on'
+        sequence: []
+      - conditions:
+        - condition: state
+          entity_id: schedule.szene_nacht
+          state: 'on'
+        sequence:
+        - service: scene.turn_on
+          target:
+            entity_id: scene.kuche_nachtlicht_2
+          metadata: {}
+        - wait_for_trigger:
+          - platform: state
+            entity_id:
+            - input_boolean.kuche_belegt
+            to: 'off'
+            for:
+              hours: 0
+              minutes: 2
+              seconds: 0
+          continue_on_timeout: false
+        - service: light.turn_off
+          data: {}
+          target:
+            device_id: bee65ba0c47c9184920b277830dca6c7
+  mode: single
+- id: '1666910903226'
+  alias: 'Bürolicht: An bei Bewegung und aus wenn frei'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.hue_motion_sensor_1_motion
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.gastmodus
+    state: 'off'
+  - condition: numeric_state
+    entity_id: sensor.hue_motion_sensor_1_illuminance
+    below: input_number.bewegungsmelder_helligkeit
+  action:
+  - if:
+    - condition: state
+      entity_id: timer.buro_licht_schonfrist
+      state: idle
+    then:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: schedule.szene_morgen
+          state: 'on'
+        sequence:
+        - service: scene.turn_on
+          target:
+            entity_id: scene.buro_entspannen
+          metadata: {}
+      - conditions:
+        - condition: state
+          entity_id: schedule.szene_tag
+          state: 'on'
+        sequence:
+        - service: scene.turn_on
+          target:
+            entity_id: scene.buro_entspannen
+          metadata: {}
+      - conditions:
+        - condition: state
+          entity_id: schedule.szene_abend
+          state: 'on'
+        sequence:
+        - service: scene.turn_on
+          target:
+            entity_id: scene.buro_entspannen
+          metadata: {}
+      - conditions:
+        - condition: state
+          entity_id: schedule.szene_nacht
+          state: 'on'
+        sequence:
+        - service: scene.turn_on
+          target:
+            entity_id: scene.buro_nachtlicht
+          metadata: {}
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - binary_sensor.buro_belegt
+      to: 'off'
+      for:
+        hours: 0
+        minutes: 5
+        seconds: 0
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id: efdc37a3c400d1f5c61eff6aaf14282d
+  mode: single
+- id: '1667760815210'
+  alias: 'Strom sparen: Wenn wir schlafen'
+  description: ''
+  trigger:
+  - platform: time
+    at: '23:00:00'
+  - platform: state
+    entity_id:
+    - media_player.pioneer_receiver
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.gastmodus
+    state: 'off'
+    enabled: false
+  - condition: time
+    after: '23:00:00'
+    before: 05:00:00
+  - condition: state
+    entity_id: media_player.pioneer_receiver
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.urlaubsmodus
+    state: 'off'
+  action:
+  - service: script.strom_sparen
+    data: {}
+  mode: single
+- id: '1667761144680'
+  alias: 'Strom sparen: morgens Wohnung hochfahren'
+  description: Wenn jemand Zuhause ist.
+  trigger:
+  - platform: time
+    at: 05:30:00
+  condition:
+  - condition: state
+    entity_id: input_boolean.gastmodus
+    state: 'off'
+    enabled: true
+  - condition: numeric_state
+    entity_id: zone.home
+    above: 0
+  - condition: state
+    entity_id: input_boolean.urlaubsmodus
+    state: 'off'
+  action:
+  - service: script.wohnung_hochfahren
+    data: {}
+  mode: single
+- id: '1671571501410'
+  alias: 'Luftfeuchtigkeit: Kinderzimmer'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.netatmo_wohnung_buro_schlafzimmer_humidity
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    above: 65
+  - platform: state
+    entity_id:
+    - automation.luftfeuchtigkeit_kinderzimmer
+    to: 0
+    attribute: current
+    from: 1
+  - platform: time
+    at: 07:00:00
+  - platform: time
+    at: '18:00:00'
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.netatmo_wohnung_buro_schlafzimmer_humidity
+    above: 64.7
+  action:
+  - service: persistent_notification.create
+    data:
+      message: "\U0001F476 Kinderzimmer \U0001F4A6 über 65%.\U0001FA9F? "
+      notification_id: schlafzimmer_feucht
+  - wait_for_trigger:
+    - platform: numeric_state
+      entity_id: sensor.netatmo_wohnung_buro_schlafzimmer_humidity
+      below: 65
+    - platform: state
+      entity_id:
+      - binary_sensor.buro_fenster_offen
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
+      to: 'on'
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: schlafzimmer_feucht
+  - delay:
+      hours: 2
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  mode: single
+- id: '1671573648894'
+  alias: 'Luftfeuchtigkeit: Schlafzimmer'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.netatmo_wohnung_buro_humidity
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    above: 65
+  - platform: state
+    entity_id:
+    - automation.luftfeuchtigkeit_schlafzimmer
+    to: 0
+    attribute: current
+    from: 1
+  - platform: time
+    at: 07:00:00
+  - platform: time
+    at: '18:00:00'
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.netatmo_wohnung_buro_humidity
+    above: 65
+  action:
+  - service: persistent_notification.create
+    data:
+      message: "\U0001F5A5 Schlafzimmer \U0001F4A6 über 65%.\U0001FA9F? "
+      notification_id: buro_feucht
+  - wait_for_trigger:
+    - platform: numeric_state
+      entity_id: sensor.netatmo_wohnung_buro_humidity
+      below: 65
+    - platform: state
+      entity_id:
+      - binary_sensor.schlafzimmer_fenster_offen
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
+      to: 'on'
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: buro_feucht
+  - delay:
+      hours: 2
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  mode: single
+- id: '1672259252407'
+  alias: 'Licht Wohnküche: aus wenn Button lang'
+  description: ''
+  trigger:
+  - device_id: 62bb579592ea76dc8d7711fbc889f73a
+    domain: hue
+    platform: device
+    type: repeat
+    subtype: 4
+    unique_id: 9a71ed9d-dbbc-46a2-8f24-aa6003c13630
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id:
+      - c03d1a02f0bcd1b62fb6f8e50ef55e04
+      - ec3b135bee00b2ab1ebd6626e0a690ca
+      - weihnachten
+  mode: single
+- id: '1672425645235'
+  alias: 'Multimedia: Beamer verzögert an'
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: ff2ec82825008742b45244dbe8f87b17
+    entity_id: switch.multimedia
+    domain: switch
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+  condition: []
+  action:
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - media_player.android_tv_192_168_50_17
+      from: unavailable
+  - service: media_player.turn_off
+    data: {}
+    target:
+      entity_id: media_player.google_tv
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.beamer_plug
+  mode: single
+- id: '1672425862465'
+  alias: 'Multimedia: Beamer Plug aus wenn Multimedia aus'
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_off
+    device_id: ff2ec82825008742b45244dbe8f87b17
+    entity_id: switch.multimedia
+    domain: switch
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+  condition: []
+  action:
+  - service: media_player.turn_off
+    data: {}
+    target:
+      entity_id: media_player.beamer
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.beamer_plug
+  mode: single
+- id: '1673557094145'
+  alias: Schlafzimmer Arbeitsplatz
+  description: ''
+  trigger:
+  - device_id: 9f9732d618762df43c0c2c01d5327224
+    domain: hue
+    platform: device
+    type: initial_press
+    subtype: 1
+    unique_id: 62e429e9-4ce4-477f-8d5a-c91a7ba7bb13
+    id: feierabend
+  - device_id: 9f9732d618762df43c0c2c01d5327224
+    domain: hue
+    platform: device
+    type: initial_press
+    subtype: 2
+    unique_id: d2955646-a385-48ec-9aec-c0b5480f636f
+    id: start
+  - device_id: 9f9732d618762df43c0c2c01d5327224
+    domain: hue
+    platform: device
+    type: initial_press
+    subtype: 3
+    unique_id: 3d7c486d-f1b2-4684-a6b0-140f8cf45c5b
+    id: kommode
+  - device_id: 9f9732d618762df43c0c2c01d5327224
+    domain: hue
+    platform: device
+    type: initial_press
+    subtype: 4
+    unique_id: b9ddc048-46ad-46e1-9cb8-6aa9902f3598
+    id: ladeplatz
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: start
+      sequence:
+      - service: homeassistant.turn_on
+        data: {}
+        target:
+          device_id:
+          - e74655c418ff99dbcafd35325628bad5
+          - 7a23f196d1bd26fbfd1c2c5f3fbca5ca
+      - service: scene.turn_on
+        target:
+          entity_id: scene.schlafzimmer_arbeitsplatz_arbeiten
+        metadata: {}
+    - conditions:
+      - condition: trigger
+        id: feierabend
+      sequence:
+      - service: script.feierabend
+        data: {}
+    - conditions:
+      - condition: trigger
+        id: kommode
+      sequence:
+      - type: toggle
+        device_id: 23463e1aa3532dbb05776cd18c12d83f
+        entity_id: light.schlafzimmer_kommode
+        domain: light
+    - conditions:
+      - condition: trigger
+        id: ladeplatz
+      sequence:
+      - type: toggle
+        device_id: e74655c418ff99dbcafd35325628bad5
+        entity_id: switch.schlafzimmer_ladeplatz
+        domain: switch
+  mode: single
+- id: '1674942364649'
+  alias: 'Arbeitsplatz: An wenn Schlafzimmer Rollo hoch'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - cover.schlafzimmer_rollos_2
+    to: open
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.gastmodus
+    state: 'off'
+  - condition: time
+    after: 07:00:00
+    before: '12:00:00'
+  action:
+  - type: turn_on
+    device_id: e74655c418ff99dbcafd35325628bad5
+    entity_id: switch.schlafzimmer_ladeplatz
+    domain: switch
+  - type: turn_on
+    device_id: 7a23f196d1bd26fbfd1c2c5f3fbca5ca
+    entity_id: switch.shellyplug_s_ef6a3c
+    domain: switch
+  mode: single
+- id: '1675196590702'
+  alias: 'Luftfeuchtigkeit: Wohnzimmer'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.shelly_h_t_2e4009_humidity
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    above: 65
+  - platform: state
+    entity_id:
+    - automation.luftfeuchtigkeit_wohnzimmer
+    to: 0
+    attribute: current
+    from: 1
+  - platform: time
+    at: 07:00:00
+  - platform: time
+    at: '18:00:00'
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.shelly_h_t_2e4009_humidity
+    above: 65
+  action:
+  - service: persistent_notification.create
+    data:
+      message: "\U0001F6CB️ Wohnzimmer \U0001F4A6 über 65%.\U0001FA9F? "
+      notification_id: wohnzimmer_feucht
+  - wait_for_trigger:
+    - platform: numeric_state
+      entity_id: sensor.shelly_h_t_2e4009_humidity
+      below: 65
+    - platform: state
+      entity_id:
+      - binary_sensor.wohnzimmer_balkontursensor_links_contact
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
+      to: 'on'
+  - service: persistent_notification.dismiss
+    data:
+      notification_id: wohnzimmer_feucht
+  - delay:
+      hours: 2
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  mode: single
+- id: '1676244397432'
+  alias: Trockner
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.trockner
+    to: 'off'
+    id: completed
+    from: 'on'
+  - platform: state
+    entity_id:
+    - sensor.trockner
+    to: 'on'
+    id: starts
+  - platform: state
+    entity_id:
+    - input_boolean.trockner_fertig
+    to: 'off'
+    id: emptied
+  - platform: state
+    entity_id:
+    - binary_sensor.trockner_tur
+    to: 'on'
+    id: door_opened
+  - platform: state
+    entity_id:
+    - sensor.trockner
+    attribute: remain_time
+    id: remain
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: completed
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.trockner_fertig
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: dry_starts
+      - service: persistent_notification.create
+        data:
+          notification_id: dry_completed
+          message: "\U0001F32C️ Trockner fertig."
+      - service: notify.everyone
+        data:
+          message: "\U0001F32C️ Trockner fertig."
+    - conditions:
+      - condition: trigger
+        id: starts
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.trockner_fertig
+      - service: persistent_notification.create
+        data:
+          message: "\U0001F32C️ Trockner läuft."
+          notification_id: dry_starts
+    - conditions:
+      - condition: trigger
+        id: emptied
+      sequence:
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: dry_completed
+    - conditions:
+      - condition: trigger
+        id: door_opened
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.trockner_fertig
+    - conditions:
+      - condition: trigger
+        id: remain
+      sequence:
+      - if:
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: sensor.trockner
+            attribute: remain_time
+            state: 0:00:00
+        then:
+        - service: persistent_notification.create
+          data:
+            message: "\U0001F32C Trockner läuft noch {{ state_attr('sensor.trockner',
+              'remain_time') }}."
+            notification_id: dry_starts
+  mode: queued
+  max: 10
+- id: '1676413478869'
+  alias: 'Licht Wohnküche: Aus wenn nicht belegt'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - group.wohnkueche_belegt
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 20
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.gastmodus
+    state: 'off'
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id:
+      - c03d1a02f0bcd1b62fb6f8e50ef55e04
+      - wohnkuche
+      - weihnachten
+      - ec3b135bee00b2ab1ebd6626e0a690ca
+  mode: single
+- id: '1676414383437'
+  alias: TV Beleuchtung
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.android_tv_192_168_50_20
+    to: playing
+    id: playing
+  - platform: state
+    entity_id:
+    - media_player.android_tv_192_168_50_20
+    to: paused
+    id: paused
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: playing
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.tv_spielt
+        metadata: {}
+    - conditions:
+      - condition: trigger
+        id: paused
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.tv_pausiert
+        metadata: {}
+  mode: single
+- id: '1676418461891'
+  alias: Tag
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 0
+  - platform: sun
+    event: sunset
+    offset: 0
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - if:
+    - condition: sun
+      after: sunrise
+      before: sunset
+    then:
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id: input_boolean.tag
+    - service: input_number.set_value
+      data:
+        value: 0
+      target:
+        entity_id: input_number.nacht
+    else:
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.tag
+    - service: input_number.set_value
+      data:
+        value: 1
+      target:
+        entity_id: input_number.nacht
+  mode: single
+- id: '1677269523969'
+  alias: Waschmaschine
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.waschmaschine
+    to: 'on'
+    id: starts
+  - platform: state
+    entity_id:
+    - input_boolean.washing_machine_done
+    to: 'off'
+    id: emptied
+  - platform: state
+    entity_id:
+    - binary_sensor.tur_waschmaschine
+    to: 'on'
+    id: door_opened
+  - platform: state
+    entity_id:
+    - sensor.waschmaschine
+    attribute: remain_time
+    id: remain
+  - platform: state
+    entity_id:
+    - sensor.waschmaschine
+    id: completed
+    attribute: run_completed
+    to: 'on'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: completed
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.washing_machine_done
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: wash_starts
+      - service: persistent_notification.create
+        data:
+          notification_id: wash_completed
+          message: "\U0001F30A Waschmaschine fertig."
+      - service: notify.everyone
+        data:
+          message: "\U0001F30A Waschmaschine fertig."
+    - conditions:
+      - condition: trigger
+        id: starts
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.washing_machine_done
+      - service: persistent_notification.create
+        data:
+          message: "\U0001F30A Waschmaschine läuft."
+          notification_id: wash_starts
+    - conditions:
+      - condition: trigger
+        id: emptied
+      sequence:
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: wash_completed
+    - conditions:
+      - condition: trigger
+        id: door_opened
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.washing_machine_done
+    - conditions:
+      - condition: trigger
+        id: remain
+      sequence:
+      - if:
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: sensor.waschmaschine
+            attribute: remain_time
+            state: 0:00:00
+        then:
+        - service: persistent_notification.create
+          data:
+            message: "\U0001F30A Waschmaschine läuft noch {{ state_attr('sensor.waschmaschine',
+              'remain_time') }}."
+            notification_id: wash_starts
+  mode: queued
+  max: 10
+- id: '1677456794515'
+  alias: 'Baby: Schläft'
+  description: ''
+  trigger:
+  - platform: time
+    at: '20:00:00'
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.baby_schlaft
+  mode: single
+- id: '1677479588230'
+  alias: 'Baby: wach'
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:30:00
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.baby_schlaft
+  mode: single
+- id: '1681337806017'
+  alias: 'Anwesenheit: Küche belegt'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.kuche_bewegungsmelder_occupancy
+    to: 'on'
+  - platform: state
+    entity_id:
+    - binary_sensor.kuche_anwesenheit_presence
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.kuche_belegt
+  - if:
+    - condition: state
+      entity_id: binary_sensor.kuche_anwesenheit_presence
+      state: 'off'
+    then:
+    - wait_for_trigger:
+      - platform: state
+        entity_id:
+        - binary_sensor.kuche_anwesenheit_presence
+        to: 'on'
+      timeout:
+        hours: 0
+        minutes: 10
+        seconds: 0
+        milliseconds: 0
+    - if:
+      - condition: state
+        entity_id: binary_sensor.kuche_anwesenheit_presence
+        state: 'off'
+      then:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.kuche_belegt
+      - stop: Presence sensor never detected presence. Turning off after timeout.
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - binary_sensor.kuche_anwesenheit_presence
+      to: 'off'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.kuche_belegt
+  mode: single
+- id: '1681340027935'
+  alias: 'Anwesenheit: Wohnzimmer belegt'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.wohnzimmer_anwesenheit_presence
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.wohnzimmer_belegt
+  - if:
+    - condition: state
+      entity_id: binary_sensor.wohnzimmer_anwesenheit_presence
+      state: 'off'
+    then:
+    - wait_for_trigger:
+      - platform: state
+        entity_id:
+        - binary_sensor.wohnzimmer_anwesenheit_presence
+        to: 'on'
+      timeout:
+        hours: 0
+        minutes: 10
+        seconds: 0
+        milliseconds: 0
+    - if:
+      - condition: state
+        entity_id: binary_sensor.wohnzimmer_anwesenheit_presence
+        state: 'off'
+      then:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.wohnzimmer_belegt
+      - stop: Presence sensor never detected presence. Turning off after timeout.
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - binary_sensor.wohnzimmer_anwesenheit_presence
+      to: 'off'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.wohnzimmer_belegt
+  mode: single
+- id: '1685432226060'
+  alias: 'Arbeit: Monitorlampe bei Meeting ein'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.daniels_billie_macbook_pro_camera_in_use_2
+    to: 'on'
+  condition: []
+  action:
+  - type: turn_on
+    device_id: a46bde7cea886becb494df58d46687dd
+    entity_id: light.monitorlampe_ambilight
+    domain: light
+    brightness_pct: 100
+  mode: single
+- id: '1685518446796'
+  alias: 'Haustür: Wenn ich ankomme ring to open anbieten'
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.daniel_kirsch
+    zone: zone.home
+    event: enter
+    id: home
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: RING_TO_OPEN
+    id: ring_to_open
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: home
+      sequence:
+      - service: notify.daniel
+        data:
+          message: Ring to open?
+          data:
+            tag: unlock-door
+            url: /lovelace-dash/sicherheit
+            actions:
+            - action: RING_TO_OPEN
+              title: Ja
+              icon: sfsymbols:lock.open
+      - wait_for_trigger:
+        - platform: device
+          device_id: ffc576a86bd9ed850a600b23e699cbdf
+          domain: lock
+          entity_id: lock.haustur_lock
+          type: unlocked
+        timeout:
+          hours: 0
+          minutes: 10
+          seconds: 0
+          milliseconds: 0
+      - service: notify.daniel
+        data:
+          message: clear_notification
+          data:
+            tag: unlock-door
+    - conditions:
+      - condition: trigger
+        id: ring_to_open
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.ring_to_open
+  mode: single
+- id: '1685519444454'
+  alias: 'Haustür: Ring to open'
+  description: ''
+  trigger:
+  - type: turned_on
+    platform: device
+    device_id: ffc576a86bd9ed850a600b23e699cbdf
+    entity_id: binary_sensor.haustur_ding
+    domain: binary_sensor
+  condition:
+  - condition: state
+    entity_id: automation.ring_to_open
+    state: 'on'
+  action:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  - service: lock.unlock
+    data: {}
+    target:
+      entity_id: lock.haustur_lock
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.ring_to_open
+  mode: single
+- id: '1685520031668'
+  alias: 'Haustür: Ring to open aus nach 10 Minuten'
+  description: oder wenn es deaktiviert wird oder die Tür entsperrt wird.
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.ring_to_open
+    to: 'on'
+  condition: []
+  action:
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - input_boolean.ring_to_open
+      to: 'off'
+    - platform: device
+      device_id: ffc576a86bd9ed850a600b23e699cbdf
+      domain: lock
+      entity_id: lock.haustur_lock
+      type: unlocked
+    timeout:
+      hours: 0
+      minutes: 10
+      seconds: 0
+      milliseconds: 0
+    continue_on_timeout: true
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.ring_to_open
+  mode: single
+- id: '1685821912888'
+  alias: 'Wohnungstür: Öffnen anbieten'
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.daniel_kirsch
+    zone: zone.home
+    event: enter
+  condition: []
+  action:
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - sensor.daniels_iphone
+      from: not_home
+    - platform: state
+      entity_id:
+      - sensor.daniels_venu_2
+      from: not_home
+    timeout:
+      hours: 0
+      minutes: 10
+      seconds: 0
+      milliseconds: 0
+    continue_on_timeout: false
+  - service: notify.daniel
+    data:
+      message: Wohnungstür öffnen?
+      data:
+        tag: unlock-flat
+        url: /lovelace-dash/sicherheit
+        actions:
+        - action: UNLOCK_FLAT
+          title: Ja
+          icon: sfsymbols:lock.open
+  - parallel:
+    - alias: Warte auf die Aktion, dann schließe die Tür auf.
+      sequence:
+      - alias: Wait for a response
+        wait_for_trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: UNLOCK_FLAT
+        timeout:
+          hours: 0
+          minutes: 10
+          seconds: 0
+          milliseconds: 0
+        continue_on_timeout: false
+      - service: lock.unlock
+        target:
+          entity_id: lock.lock_595e
+    - alias: Warte 10 Minuten - dann lösche die Benachrichtigung.
+      sequence:
+      - alias: Wait for unlock
+        wait_for_trigger:
+        - platform: state
+          entity_id:
+          - lock.lock_595e
+          to: unlocking
+        timeout:
+          hours: 0
+          minutes: 10
+          seconds: 0
+          milliseconds: 0
+        continue_on_timeout: true
+      - alias: Clear actionable notification
+        service: notify.daniel
+        data:
+          message: clear_notification
+          data:
+            tag: unlock-flat
+  mode: single
+- id: '1686001233639'
+  alias: 'Licht Schlafzimmer: Aus wenn lange niemand anwesend'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.schlafzimmer_anwesenheit_presence
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 20
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.gastmodus
+    state: 'off'
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id: 29e604877babae723f8a353a2f1bd4f5
   mode: single

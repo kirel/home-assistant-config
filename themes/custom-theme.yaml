@@ -1,0 +1,21 @@
+custom-theme:
+  modes:
+      light: {}
+      dark: {}
+  card-mod-theme: custom-theme
+  card-mod-more-info-yaml: |
+    .: |
+      ha-dialog {
+        --vertical-align-dialog: center !important;
+      }      
+    $: |
+      .mdc-dialog {
+        backdrop-filter: blur(17px) !important;
+        -webkit-backdrop-filter: blur(17px) !important;
+        background: rgba(0,0,0,0.25);
+      }
+      .mdc-dialog .mdc-dialog__container .mdc-dialog__surface {
+        background: none !important;
+        box-shadow: none;
+        border-radius: 0px;
+      }

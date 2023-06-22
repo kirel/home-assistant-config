@@ -3,3 +3,9 @@ everyone:
   entities:
     - person.daniel_kirsch
     - person.sabine_eichling
+wohnkueche_belegt:
+  name: Wohnküche belegt
+  entities:
+    - input_boolean.kuche_belegt
+    - input_boolean.wohnzimmer_belegt
+  all: false
